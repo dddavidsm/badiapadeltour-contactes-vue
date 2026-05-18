@@ -1,115 +1,46 @@
 <template>
   <div class="bpt-app">
-    <!-- ── Top bar ──────────────────────────────────────────────────────── -->
-    <div class="bpt-topbar">
-      <div class="bpt-topbar-left">
-        <span class="bpt-logo">🎾 Contactes Pàdel</span>
-        <span v-if="userName" class="bpt-user">{{ userName }}</span>
-      </div>
-      <div class="bpt-tabs">
-        <button
-          v-for="tab in tabs"
-          :key="tab.id"
-          :class="['bpt-tab', { active: activeTab === tab.id }]"
-          @click="activeTab = tab.id"
-        >{{ tab.label }}</button>
-      </div>
-    </div>
+    <ContactsTopbar
+      :active-tab="activeTab"
+      :tabs="tabs"
+      @change-tab="activeTab = $event as TabId"
+    />
 
-    <!-- ═══════════════════ TAB: CONTACTES ══════════════════════════════ -->
-    <div v-if="activeTab === 'contacts'" class="bpt-section">
+    <ContactsListSection
+      v-if="activeTab === 'contacts'"
+      :contacts="filteredContacts"
+      :filter-group="filterGroup"
+      :group-color-of="groupColorOf"
+      :group-name-of="groupNameOf"
+      :groups="groups"
+      :initials="initials"
+      :loading="loading"
+      :search-q="searchQ"
+      :sort-by="sortBy"
+      @delete-contact="deleteContact"
+      @edit-contact="openContactForm"
+      @open-contact="openContactForm(null)"
+      @update:filter-group="filterGroup = $event"
+      @update:search-q="searchQ = $event"
+      @update:sort-by="sortBy = $event"
+    />
 
-      <!-- Filters bar -->
-      <div class="bpt-filters">
-        <input v-model="searchQ" type="search" placeholder="🔍 Cerca per nom, cognom…" class="bpt-input" />
-        <select v-model="filterGroup" class="bpt-input">
-          <option value="">Tots els grups</option>
-          <option v-for="g in groups" :key="g.id" :value="g.id">{{ g.name }}</option>
-        </select>
-        <select v-model="sortBy" class="bpt-input">
-          <option value="name">Ordenar per nom</option>
-          <option value="date">Ordenar per data</option>
-        </select>
-        <button class="bpt-btn bpt-btn-primary" @click="openContactForm(null)">+ Nou contacte</button>
-      </div>
+    <GroupsSection
+      v-if="activeTab === 'groups'"
+      :contacts-per-group="contactsPerGroup"
+      :groups="groups"
+      @delete-group="deleteGroup"
+      @edit-group="openGroupForm"
+      @open-group="openGroupForm(null)"
+    />
 
-      <!-- Contact list -->
-      <div v-if="loading" class="bpt-state">Carregant…</div>
-      <div v-else-if="!filteredContacts.length" class="bpt-state">Cap contacte trobat.</div>
-      <div v-else class="bpt-grid">
-        <div
-          v-for="c in filteredContacts"
-          :key="c.id"
-          class="bpt-card bpt-contact-card"
-        >
-          <div class="bpt-avatar" :style="{ background: groupColorOf(c.groupId) }">
-            {{ initials(c.name, c.surname) }}
-          </div>
-          <div class="bpt-contact-info">
-            <strong>{{ c.name }} {{ c.surname }}</strong>
-            <span>📞 {{ c.phone }}</span>
-            <span>✉️ {{ c.email }}</span>
-            <span>📍 {{ c.city }}</span>
-            <span class="bpt-group-badge" :style="{ background: groupColorOf(c.groupId) + '33', color: groupColorOf(c.groupId) }">
-              {{ groupNameOf(c.groupId) }}
-            </span>
-          </div>
-          <div class="bpt-card-actions">
-            <button class="bpt-icon-btn" @click="openContactForm(c)" title="Editar">✏️</button>
-            <button class="bpt-icon-btn danger" @click="deleteContact(c.id)" title="Eliminar">🗑️</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ═══════════════════ TAB: GRUPS ══════════════════════════════════ -->
-    <div v-if="activeTab === 'groups'" class="bpt-section">
-      <div class="bpt-filters">
-        <button class="bpt-btn bpt-btn-primary" @click="openGroupForm(null)">+ Nou grup</button>
-      </div>
-      <div class="bpt-grid">
-        <div v-for="g in groups" :key="g.id" class="bpt-card bpt-group-card">
-          <div class="bpt-group-dot" :style="{ background: g.color }"></div>
-          <div class="bpt-group-info">
-            <strong>{{ g.name }}</strong>
-            <span class="bpt-muted">{{ contactsPerGroup[g.id] ?? 0 }} contactes</span>
-          </div>
-          <div class="bpt-card-actions">
-            <button class="bpt-icon-btn" @click="openGroupForm(g)">✏️</button>
-            <button class="bpt-icon-btn danger" @click="deleteGroup(g.id)">🗑️</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ═══════════════════ TAB: ESTADÍSTIQUES ══════════════════════════ -->
-    <div v-if="activeTab === 'stats'" class="bpt-section">
-      <div class="bpt-stats-grid">
-        <div class="bpt-stat-card">
-          <span class="bpt-stat-val">{{ contacts.length }}</span>
-          <span class="bpt-stat-label">Total contactes</span>
-        </div>
-        <div class="bpt-stat-card">
-          <span class="bpt-stat-val">{{ recentContacts.length }}</span>
-          <span class="bpt-stat-label">Últims 7 dies</span>
-        </div>
-      </div>
-
-      <div class="bpt-card" style="margin-top:1rem">
-        <h4 style="margin:0 0 .75rem;color:var(--electric)">Contactes per grup</h4>
-        <div v-for="g in groups" :key="g.id" class="bpt-stat-row">
-          <span class="bpt-group-dot" :style="{ background: g.color }"></span>
-          <span>{{ g.name }}</span>
-          <span class="bpt-bar-wrap">
-            <span
-              class="bpt-bar"
-              :style="{ width: barWidth(contactsPerGroup[g.id] ?? 0), background: g.color }"
-            ></span>
-          </span>
-          <span class="bpt-muted">{{ contactsPerGroup[g.id] ?? 0 }}</span>
-        </div>
-      </div>
-    </div>
+    <StatsSection
+      v-if="activeTab === 'stats'"
+      :contacts-count="contacts.length"
+      :contacts-per-group="contactsPerGroup"
+      :groups="groups"
+      :recent-contacts-count="recentContacts.length"
+    />
 
     <!-- ═══════════════════ MODAL: Contacte ════════════════════════════ -->
     <div v-if="showContactModal" class="bpt-overlay" @click.self="closeContactModal">
@@ -193,6 +124,10 @@
 
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue';
+import ContactsListSection from './components/ContactsListSection.vue';
+import ContactsTopbar from './components/ContactsTopbar.vue';
+import GroupsSection from './components/GroupsSection.vue';
+import StatsSection from './components/StatsSection.vue';
 import {
   PADEL_CITIES, DEFAULT_GROUPS,
   type Contact, type Group,
@@ -203,43 +138,44 @@ import {
   loadGroups, saveGroups,
 } from './data/contacts-api';
 
-// ── Props ──────────────────────────────────────────────────────────────────
-const props = defineProps<{ userId: string; userName: string }>();
-
-// ── Tabs ───────────────────────────────────────────────────────────────────
 const tabs = [
   { id: 'contacts', label: 'Contactes' },
   { id: 'groups',   label: 'Grups' },
   { id: 'stats',    label: 'Estadístiques' },
 ] as const;
+
 type TabId = typeof tabs[number]['id'];
+const PHONE_RE = /^\+?[1-9]\d{7,14}$/;
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const EMPTY_CONTACT_FORM: ContactFormData = {
+  name: '',
+  surname: '',
+  phone: '',
+  email: '',
+  groupId: null,
+  city: '',
+};
+const EMPTY_GROUP_FORM: GroupFormData = {
+  name: '',
+  color: '#c9ff00',
+};
+
 const activeTab = ref<TabId>('contacts');
-
-// ── Core state ─────────────────────────────────────────────────────────────
 const contacts = ref<Contact[]>([]);
-const groups   = ref<Group[]>([]);
-const loading  = ref(false);
-
-// ── Filters / sort ─────────────────────────────────────────────────────────
-const searchQ     = ref('');
+const groups = ref<Group[]>([]);
+const loading = ref(false);
+const searchQ = ref('');
 const filterGroup = ref<number | ''>('');
-const sortBy      = ref<'name' | 'date'>('name');
-
-// ── Contact modal ─────────────────────────────────────────────────────────
-const showContactModal  = ref(false);
-const editingContactId  = ref<number | null>(null);
-const cForm = reactive<ContactFormData>({ name: '', surname: '', phone: '', email: '', groupId: null, city: '' });
+const sortBy = ref<'name' | 'date'>('name');
+const showContactModal = ref(false);
+const editingContactId = ref<number | null>(null);
+const cForm = reactive<ContactFormData>({ ...EMPTY_CONTACT_FORM });
 const cErrors = reactive<Partial<Record<keyof ContactFormData, string>>>({});
-
-// ── Group modal ───────────────────────────────────────────────────────────
-const showGroupModal  = ref(false);
-const editingGroupId  = ref<number | null>(null);
-const gForm  = reactive<GroupFormData>({ name: '', color: '#c9ff00' });
+const showGroupModal = ref(false);
+const editingGroupId = ref<number | null>(null);
+const gForm = reactive<GroupFormData>({ ...EMPTY_GROUP_FORM });
 const gErrors = reactive<Partial<Record<keyof GroupFormData, string>>>({});
 
-// ── Computed properties ────────────────────────────────────────────────────
-
-/** Contacts filtered by search + group + sorted */
 const filteredContacts = computed<Contact[]>(() => {
   const q = searchQ.value.toLowerCase();
   let list = contacts.value.filter((c) => {
@@ -255,13 +191,11 @@ const filteredContacts = computed<Contact[]>(() => {
   return list;
 });
 
-/** Contacts added in the last 7 days */
 const recentContacts = computed(() => {
   const week = Date.now() - 7 * 24 * 3600 * 1000;
   return contacts.value.filter((c) => new Date(c.createdAt).getTime() >= week);
 });
 
-/** Count per group id */
 const contactsPerGroup = computed<Record<number, number>>(() => {
   const map: Record<number, number> = {};
   for (const g of groups.value) map[g.id] = 0;
@@ -271,15 +205,13 @@ const contactsPerGroup = computed<Record<number, number>>(() => {
   return map;
 });
 
-/** Contact form is valid enough to submit */
 const isContactFormValid = computed(() =>
   cForm.name.length >= 2 &&
   cForm.surname.length >= 2 &&
-  /^\+?[1-9]\d{7,14}$/.test(cForm.phone) &&
+  PHONE_RE.test(cForm.phone) &&
   cForm.groupId !== null
 );
 
-// ── Helpers ───────────────────────────────────────────────────────────────
 const initials = (name: string, surname: string) =>
   ((name[0] ?? '') + (surname[0] ?? '')).toUpperCase();
 
@@ -289,23 +221,53 @@ const groupColorOf = (groupId: number) =>
 const groupNameOf = (groupId: number) =>
   groups.value.find((g) => g.id === groupId)?.name ?? '—';
 
-const barWidth = (count: number) => {
-  const max = Math.max(...Object.values(contactsPerGroup.value), 1);
-  return `${Math.round((count / max) * 100)}%`;
-};
+function clearErrors<T extends string>(errors: Partial<Record<T, string>>): void {
+  Object.keys(errors).forEach((key) => delete errors[key as T]);
+}
 
-// ── Contact CRUD ───────────────────────────────────────────────────────────
-function openContactForm(contact: Contact | null): void {
+function persistContacts(): void {
+  saveContacts(contacts.value);
+}
+
+function persistGroups(): void {
+  saveGroups(groups.value);
+}
+
+function resetContactForm(contact: Contact | null): void {
   editingContactId.value = contact?.id ?? null;
   Object.assign(cForm, {
-    name:    contact?.name    ?? '',
+    ...EMPTY_CONTACT_FORM,
+    name: contact?.name ?? '',
     surname: contact?.surname ?? '',
-    phone:   contact?.phone   ?? '',
-    email:   contact?.email   ?? '',
+    phone: contact?.phone ?? '',
+    email: contact?.email ?? '',
     groupId: contact?.groupId ?? null,
-    city:    contact?.city    ?? '',
+    city: contact?.city ?? '',
   });
-  Object.keys(cErrors).forEach((k) => delete (cErrors as Record<string, string>)[k]);
+  clearErrors(cErrors);
+}
+
+function resetGroupForm(group: Group | null): void {
+  editingGroupId.value = group?.id ?? null;
+  Object.assign(gForm, {
+    ...EMPTY_GROUP_FORM,
+    name: group?.name ?? '',
+    color: group?.color ?? EMPTY_GROUP_FORM.color,
+  });
+  clearErrors(gErrors);
+}
+
+function setContactError(field: keyof ContactFormData, message: string | null): boolean {
+  if (message) {
+    cErrors[field] = message;
+    return false;
+  }
+  delete cErrors[field];
+  return true;
+}
+
+function openContactForm(contact: Contact | null): void {
+  resetContactForm(contact);
   showContactModal.value = true;
 }
 
@@ -313,70 +275,76 @@ function closeContactModal(): void { showContactModal.value = false; }
 
 function validateContactForm(): boolean {
   let ok = true;
-  const set = (k: keyof ContactFormData, msg: string | null) => {
-    if (msg) { (cErrors as Record<string, string>)[k] = msg; ok = false; }
-    else      delete (cErrors as Record<string, string>)[k];
-  };
-  set('name',    cForm.name.length    < 2 ? 'Mínim 2 caràcters' : null);
-  set('surname', cForm.surname.length < 2 ? 'Mínim 2 caràcters' : null);
-  set('phone',   !/^\+?[1-9]\d{7,14}$/.test(cForm.phone) ? 'Format invàlid (+34612345678)' : null);
-  set('groupId', !cForm.groupId ? 'Selecciona un grup' : null);
-  set('email',   cForm.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cForm.email) ? 'Correu invàlid' : null);
+  ok = setContactError('name', cForm.name.length < 2 ? 'Mínim 2 caràcters' : null) && ok;
+  ok = setContactError('surname', cForm.surname.length < 2 ? 'Mínim 2 caràcters' : null) && ok;
+  ok = setContactError('phone', !PHONE_RE.test(cForm.phone) ? 'Format invàlid (+34612345678)' : null) && ok;
+  ok = setContactError('groupId', !cForm.groupId ? 'Selecciona un grup' : null) && ok;
+  ok = setContactError('email', cForm.email && !EMAIL_RE.test(cForm.email) ? 'Correu invàlid' : null) && ok;
 
   const dup = contacts.value.find(
     (c) => c.phone === cForm.phone && c.id !== editingContactId.value
   );
-  if (dup) { (cErrors as Record<string, string>).phone = 'Telèfon ja existent'; ok = false; }
+  if (dup) {
+    cErrors.phone = 'Telèfon ja existent';
+    ok = false;
+  }
   return ok;
 }
 
 function submitContactForm(): void {
   if (!validateContactForm()) return;
+
+  const payload = {
+    name: cForm.name,
+    surname: cForm.surname,
+    phone: cForm.phone,
+    email: cForm.email,
+    groupId: cForm.groupId as number,
+    city: cForm.city,
+  };
+
   if (editingContactId.value !== null) {
     const idx = contacts.value.findIndex((c) => c.id === editingContactId.value);
     if (idx !== -1) {
-      contacts.value[idx] = { ...contacts.value[idx], ...cForm, groupId: cForm.groupId as number };
+      contacts.value[idx] = { ...contacts.value[idx], ...payload };
     }
   } else {
     contacts.value.push({
       id: Date.now(),
-      name: cForm.name, surname: cForm.surname,
-      phone: cForm.phone, email: cForm.email,
-      groupId: cForm.groupId as number, city: cForm.city,
-
+      ...payload,
       createdAt: new Date().toISOString(),
     });
   }
-  saveContacts(props.userId, contacts.value);
+  persistContacts();
   closeContactModal();
 }
 
 function deleteContact(id: number): void {
   if (!confirm('Eliminar aquest contacte?')) return;
   contacts.value = contacts.value.filter((c) => c.id !== id);
-  saveContacts(props.userId, contacts.value);
+  persistContacts();
 }
 
-// ── Group CRUD ────────────────────────────────────────────────────────────
 function openGroupForm(group: Group | null): void {
-  editingGroupId.value = group?.id ?? null;
-  gForm.name  = group?.name  ?? '';
-  gForm.color = group?.color ?? '#c9ff00';
-  Object.keys(gErrors).forEach((k) => delete (gErrors as Record<string, string>)[k]);
+  resetGroupForm(group);
   showGroupModal.value = true;
 }
 
 function closeGroupModal(): void { showGroupModal.value = false; }
 
 function submitGroupForm(): void {
-  if (gForm.name.length < 2) { (gErrors as Record<string, string>).name = 'Mínim 2 caràcters'; return; }
+  if (gForm.name.length < 2) {
+    gErrors.name = 'Mínim 2 caràcters';
+    return;
+  }
+
   if (editingGroupId.value !== null) {
     const idx = groups.value.findIndex((g) => g.id === editingGroupId.value);
     if (idx !== -1) groups.value[idx] = { ...groups.value[idx], name: gForm.name, color: gForm.color };
   } else {
     groups.value.push({ id: Date.now(), name: gForm.name, color: gForm.color });
   }
-  saveGroups(props.userId, groups.value);
+  persistGroups();
   closeGroupModal();
 }
 
@@ -389,19 +357,18 @@ function deleteGroup(id: number): void {
   }
   if (!confirm('Eliminar aquest grup?')) return;
   groups.value = groups.value.filter((g) => g.id !== id);
-  saveGroups(props.userId, groups.value);
+  persistGroups();
 }
 
-// ── Lifecycle ─────────────────────────────────────────────────────────────
 onMounted(async () => {
-  groups.value  = loadGroups(props.userId);
+  groups.value = loadGroups();
   loading.value = true;
-  contacts.value = await loadContacts(props.userId);
+  contacts.value = await loadContacts();
   loading.value = false;
 });
 </script>
 
-<style scoped>
+<style>
 .bpt-app {
   --electric: #c9ff00;
   --bg: #111;
@@ -426,10 +393,6 @@ onMounted(async () => {
 }
 .bpt-topbar-left { display: flex; align-items: center; gap: .75rem; }
 .bpt-logo { font-size: 1.1rem; font-weight: 900; color: var(--electric); }
-.bpt-user {
-  font-size: .75rem; color: var(--muted);
-  background: #222; padding: .15rem .55rem; border-radius: 99px;
-}
 
 /* Tabs */
 .bpt-tabs { display: flex; gap: .2rem; flex-wrap: wrap; }
