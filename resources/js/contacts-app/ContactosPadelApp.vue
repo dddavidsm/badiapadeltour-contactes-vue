@@ -29,21 +29,8 @@
         <select v-model="sortBy" class="bpt-input">
           <option value="name">Ordenar per nom</option>
           <option value="date">Ordenar per data</option>
-          <option value="fav">Favorits primer</option>
         </select>
         <button class="bpt-btn bpt-btn-primary" @click="openContactForm(null)">+ Nou contacte</button>
-      </div>
-
-      <!-- Favorites shortcut -->
-      <div v-if="favoriteContacts.length" class="bpt-favbar">
-        <span class="bpt-muted">⭐ Favorits:</span>
-        <span
-          v-for="c in favoriteContacts"
-          :key="c.id"
-          class="bpt-fav-chip"
-          @click="openContactForm(c)"
-          :title="c.phone"
-        >{{ c.name }} {{ c.surname }}</span>
       </div>
 
       <!-- Contact list -->
@@ -68,9 +55,6 @@
             </span>
           </div>
           <div class="bpt-card-actions">
-            <button class="bpt-icon-btn" :class="{ lit: c.favorite }" @click="toggleFavorite(c)" title="Favorit">★</button>
-            <button class="bpt-icon-btn" @click="logCall(c, 'call')" title="Trucada">📞</button>
-            <button class="bpt-icon-btn" @click="logCall(c, 'message')" title="Missatge">💬</button>
             <button class="bpt-icon-btn" @click="openContactForm(c)" title="Editar">✏️</button>
             <button class="bpt-icon-btn danger" @click="deleteContact(c.id)" title="Eliminar">🗑️</button>
           </div>
@@ -98,22 +82,6 @@
       </div>
     </div>
 
-    <!-- ═══════════════════ TAB: HISTORIAL ══════════════════════════════ -->
-    <div v-if="activeTab === 'history'" class="bpt-section">
-      <div v-if="!history.length" class="bpt-state">Sense historial encara.</div>
-      <div v-else class="bpt-history-list">
-        <div v-for="entry in history" :key="entry.id" class="bpt-card bpt-history-row">
-          <span class="bpt-history-icon">{{ entry.type === 'call' ? '📞' : '💬' }}</span>
-          <div class="bpt-history-info">
-            <strong>{{ contactNameById(entry.contactId) }}</strong>
-            <span class="bpt-muted">{{ formatDate(entry.date) }}</span>
-            <span v-if="entry.note" class="bpt-muted">{{ entry.note }}</span>
-          </div>
-          <button class="bpt-icon-btn danger" @click="deleteHistoryEntry(entry.id)">🗑️</button>
-        </div>
-      </div>
-    </div>
-
     <!-- ═══════════════════ TAB: ESTADÍSTIQUES ══════════════════════════ -->
     <div v-if="activeTab === 'stats'" class="bpt-section">
       <div class="bpt-stats-grid">
@@ -122,16 +90,8 @@
           <span class="bpt-stat-label">Total contactes</span>
         </div>
         <div class="bpt-stat-card">
-          <span class="bpt-stat-val">{{ favoriteContacts.length }}</span>
-          <span class="bpt-stat-label">Favorits</span>
-        </div>
-        <div class="bpt-stat-card">
           <span class="bpt-stat-val">{{ recentContacts.length }}</span>
           <span class="bpt-stat-label">Últims 7 dies</span>
-        </div>
-        <div class="bpt-stat-card">
-          <span class="bpt-stat-val">{{ history.length }}</span>
-          <span class="bpt-stat-label">Interaccions</span>
         </div>
       </div>
 
@@ -235,13 +195,12 @@
 import { computed, onMounted, reactive, ref } from 'vue';
 import {
   PADEL_CITIES, DEFAULT_GROUPS,
-  type Contact, type Group, type CallEntry,
+  type Contact, type Group,
   type ContactFormData, type GroupFormData,
 } from './data/contact-types';
 import {
   loadContacts, saveContacts,
   loadGroups, saveGroups,
-  loadHistory, saveHistory, addHistoryEntry,
 } from './data/contacts-api';
 
 // ── Props ──────────────────────────────────────────────────────────────────
@@ -251,7 +210,6 @@ const props = defineProps<{ userId: string; userName: string }>();
 const tabs = [
   { id: 'contacts', label: 'Contactes' },
   { id: 'groups',   label: 'Grups' },
-  { id: 'history',  label: 'Historial' },
   { id: 'stats',    label: 'Estadístiques' },
 ] as const;
 type TabId = typeof tabs[number]['id'];
@@ -260,13 +218,12 @@ const activeTab = ref<TabId>('contacts');
 // ── Core state ─────────────────────────────────────────────────────────────
 const contacts = ref<Contact[]>([]);
 const groups   = ref<Group[]>([]);
-const history  = ref<CallEntry[]>([]);
 const loading  = ref(false);
 
 // ── Filters / sort ─────────────────────────────────────────────────────────
 const searchQ     = ref('');
 const filterGroup = ref<number | ''>('');
-const sortBy      = ref<'name' | 'date' | 'fav'>('name');
+const sortBy      = ref<'name' | 'date'>('name');
 
 // ── Contact modal ─────────────────────────────────────────────────────────
 const showContactModal  = ref(false);
@@ -295,12 +252,8 @@ const filteredContacts = computed<Contact[]>(() => {
   });
   if (sortBy.value === 'name') list = [...list].sort((a, b) => a.name.localeCompare(b.name));
   if (sortBy.value === 'date') list = [...list].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
-  if (sortBy.value === 'fav')  list = [...list].sort((a, b) => Number(b.favorite) - Number(a.favorite));
   return list;
 });
-
-/** Favorite contacts */
-const favoriteContacts = computed(() => contacts.value.filter((c) => c.favorite));
 
 /** Contacts added in the last 7 days */
 const recentContacts = computed(() => {
@@ -335,14 +288,6 @@ const groupColorOf = (groupId: number) =>
 
 const groupNameOf = (groupId: number) =>
   groups.value.find((g) => g.id === groupId)?.name ?? '—';
-
-const contactNameById = (id: number) => {
-  const c = contacts.value.find((x) => x.id === id);
-  return c ? `${c.name} ${c.surname}` : `#${id}`;
-};
-
-const formatDate = (iso: string) =>
-  new Date(iso).toLocaleString('ca-ES', { dateStyle: 'short', timeStyle: 'short' });
 
 const barWidth = (count: number) => {
   const max = Math.max(...Object.values(contactsPerGroup.value), 1);
@@ -398,7 +343,7 @@ function submitContactForm(): void {
       name: cForm.name, surname: cForm.surname,
       phone: cForm.phone, email: cForm.email,
       groupId: cForm.groupId as number, city: cForm.city,
-      favorite: false,
+
       createdAt: new Date().toISOString(),
     });
   }
@@ -410,22 +355,6 @@ function deleteContact(id: number): void {
   if (!confirm('Eliminar aquest contacte?')) return;
   contacts.value = contacts.value.filter((c) => c.id !== id);
   saveContacts(props.userId, contacts.value);
-}
-
-function toggleFavorite(contact: Contact): void {
-  contact.favorite = !contact.favorite;
-  saveContacts(props.userId, contacts.value);
-}
-
-// ── History ───────────────────────────────────────────────────────────────
-function logCall(contact: Contact, type: CallEntry['type']): void {
-  const entry = addHistoryEntry(props.userId, contact.id, type);
-  history.value.unshift(entry);
-}
-
-function deleteHistoryEntry(id: number): void {
-  history.value = history.value.filter((e) => e.id !== id);
-  saveHistory(props.userId, history.value);
 }
 
 // ── Group CRUD ────────────────────────────────────────────────────────────
@@ -466,7 +395,6 @@ function deleteGroup(id: number): void {
 // ── Lifecycle ─────────────────────────────────────────────────────────────
 onMounted(async () => {
   groups.value  = loadGroups(props.userId);
-  history.value = loadHistory(props.userId);
   loading.value = true;
   contacts.value = await loadContacts(props.userId);
   loading.value = false;
@@ -545,20 +473,7 @@ onMounted(async () => {
   border-radius: 4px; opacity: .65; transition: opacity .12s, background .12s;
 }
 .bpt-icon-btn:hover { opacity: 1; background: var(--border); }
-.bpt-icon-btn.lit { opacity: 1; color: var(--electric); }
 .bpt-icon-btn.danger:hover { color: #ff6b6b; background: rgba(255,107,107,.12); }
-
-/* Favorites bar */
-.bpt-favbar {
-  display: flex; flex-wrap: wrap; align-items: center;
-  gap: .35rem; margin-bottom: .7rem; font-size: .8rem;
-}
-.bpt-fav-chip {
-  background: #1e2a00; color: var(--electric);
-  border: 1px solid var(--electric); border-radius: 99px;
-  padding: .12rem .55rem; cursor: pointer;
-}
-.bpt-fav-chip:hover { background: var(--electric); color: #111; }
 
 /* Grid */
 .bpt-grid {
@@ -596,12 +511,6 @@ onMounted(async () => {
 .bpt-group-card { display: flex; align-items: center; gap: .65rem; }
 .bpt-group-dot { width: 13px; height: 13px; border-radius: 50%; flex-shrink: 0; }
 .bpt-group-info { flex: 1; display: flex; flex-direction: column; gap: .08rem; font-size: .83rem; }
-
-/* History */
-.bpt-history-list { display: flex; flex-direction: column; gap: .55rem; }
-.bpt-history-row { display: flex; align-items: center; gap: .7rem; }
-.bpt-history-icon { font-size: 1.1rem; }
-.bpt-history-info { flex: 1; display: flex; flex-direction: column; gap: .08rem; font-size: .8rem; }
 
 /* Stats */
 .bpt-stats-grid {

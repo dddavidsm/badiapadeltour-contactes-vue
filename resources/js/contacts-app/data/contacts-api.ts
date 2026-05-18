@@ -8,7 +8,7 @@
  */
 
 import { DEFAULT_CONTACTS, DEFAULT_GROUPS } from './contact-types';
-import type { CallEntry, Contact, Group } from './contact-types';
+import type { Contact, Group } from './contact-types';
 
 const FAKE_API = 'https://jsonplaceholder.typicode.com/users';
 
@@ -65,7 +65,6 @@ export async function loadContacts(userId: string): Promise<Contact[]> {
                 email: u.email ?? `user${i}@bpt.cat`,
                 groupId: DEFAULT_GROUPS[i % DEFAULT_GROUPS.length].id,
                 city: ['Sabadell', 'Badia del Vallès', 'Rubí', 'Cerdanyola del Vallès', 'Castellar del Vallès'][i % 5],
-                favorite: false,
                 createdAt: new Date(Date.now() - i * 3 * 24 * 3600 * 1000).toISOString(),
             }));
         }
