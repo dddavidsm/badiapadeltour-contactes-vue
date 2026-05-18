@@ -1,0 +1,333 @@
+@import '/vendor/filament/filament/resources/css/theme.css';
+
+@config '../../../../tailwind.config.js';
+
+@font-face {
+    font-family: 'Gopher';
+    src: url('/fonts/Gopher/Gopher-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Gopher';
+    src: url('/fonts/Gopher/Gopher-Bold.ttf') format('truetype');
+    font-weight: bold;
+    font-style: normal;
+}
+
+:root {
+    --electric-lime: #c9ff00;
+    --night-rider: #111111;
+    --dark-bg: #1a1a1a;
+    --darker-bg: #0f0f0f;
+}
+
+/* Fondo general del panel */
+body {
+    background-color: var(--darker-bg) !important;
+    font-family: 'Gopher', sans-serif !important;
+}
+
+/* Sidebar principal */
+.fi-sidebar {
+    background-color: var(--night-rider) !important;
+    border-right: 2px solid var(--electric-lime) !important;
+}
+
+.fi-sidebar-header {
+    border-bottom: 2px solid var(--electric-lime) !important;
+    background-color: var(--night-rider) !important;
+}
+
+.fi-sidebar-nav {
+    background-color: var(--night-rider) !important;
+}
+
+/* Items de navegación */
+.fi-sidebar-nav-item {
+    color: #ffffff !important;
+}
+
+.fi-sidebar-nav-item-active {
+    background-color: var(--electric-lime) !important;
+    color: var(--night-rider) !important;
+    font-weight: bold !important;
+}
+
+.fi-sidebar-nav-item:hover {
+    background-color: rgba(201, 255, 0, 0.15) !important;
+}
+
+/* Header/Topbar */
+.fi-topbar,
+.fi-topbar nav,
+[class*="flex h-16 items-center"],
+header[class*="bg-white"],
+header[class*="dark:bg-gray-900"] {
+    background-color: var(--night-rider) !important;
+    border-bottom: 2px solid var(--electric-lime) !important;
+}
+
+/* Forzar Night Rider en header container */
+.dark .fi-topbar,
+.dark header {
+    --tw-bg-opacity: 1 !important;
+    background-color: var(--night-rider) !important;
+}
+
+/* Botones primarios */
+.fi-btn-primary,
+.fi-btn.fi-color-primary {
+    background-color: var(--electric-lime) !important;
+    color: var(--night-rider) !important;
+    font-weight: bold !important;
+}
+
+.fi-btn-primary:hover,
+.fi-btn.fi-color-primary:hover {
+    background-color: #b8ee00 !important;
+}
+
+/* Cards y paneles */
+.fi-section,
+.fi-card {
+    background-color: var(--dark-bg) !important;
+    border: 1px solid #2a2a2a !important;
+}
+
+/* Tables */
+.fi-ta-table {
+    background-color: var(--dark-bg) !important;
+}
+
+.fi-ta-header {
+    background-color: var(--night-rider) !important;
+    border-bottom: 2px solid var(--electric-lime) !important;
+}
+
+.fi-ta-row:hover {
+    background-color: rgba(201, 255, 0, 0.08) !important;
+}
+
+/* Badges primarios */
+.fi-badge.fi-color-primary {
+    background-color: var(--electric-lime) !important;
+    color: var(--night-rider) !important;
+    font-weight: bold !important;
+}
+
+/* Links */
+a.fi-link,
+.fi-link-primary {
+    color: var(--electric-lime) !important;
+}
+
+a.fi-link:hover,
+.fi-link-primary:hover {
+    color: #b8ee00 !important;
+}
+
+/* Tabs activos */
+.fi-tabs-item[aria-selected="true"] {
+    border-bottom-color: var(--electric-lime) !important;
+    color: var(--electric-lime) !important;
+    font-weight: bold !important;
+}
+
+/* Form inputs focus */
+.fi-input:focus,
+.fi-select:focus,
+.fi-textarea:focus {
+    border-color: var(--electric-lime) !important;
+    --tw-ring-color: rgba(201, 255, 0, 0.3) !important;
+}
+
+/* Checkbox y radio */
+.fi-checkbox:checked,
+.fi-radio:checked {
+    background-color: var(--electric-lime) !important;
+    border-color: var(--electric-lime) !important;
+}
+
+/* Toggle switches */
+input[type="checkbox"]:checked + .fi-fo-toggle-switch-slider {
+    background-color: var(--electric-lime) !important;
+}
+
+/* Notificaciones success */
+.fi-notification.fi-color-success {
+    background-color: var(--electric-lime) !important;
+    color: var(--night-rider) !important;
+}
+
+/* Brand logo */
+.fi-sidebar-header .fi-logo {
+    filter: none !important;
+}
+
+/* Override Tailwind Prose colors */
+.prose {
+    --tw-prose-body: #ffffff !important;
+    --tw-prose-headings: #c9ff00 !important;
+    --tw-prose-lead: #cccccc !important;
+    --tw-prose-links: #c9ff00 !important;
+    --tw-prose-bold: #c9ff00 !important;
+    --tw-prose-quotes: #ffffff !important;
+    --tw-prose-kbd: #c9ff00 !important;
+    --tw-prose-code: #c9ff00 !important;
+}
+
+/* Modal backgrounds */
+.fi-modal {
+    background-color: var(--dark-bg) !important;
+}
+
+/* Dropdowns */
+.fi-dropdown-list {
+    background-color: var(--dark-bg) !important;
+    border: 1px solid var(--electric-lime) !important;
+}
+
+.fi-dropdown-list-item:hover {
+    background-color: rgba(201, 255, 0, 0.1) !important;
+}
+
+/* Stats cards */
+.fi-wi-stats-overview-stat {
+    background-color: var(--dark-bg) !important;
+    border: 1px solid #2a2a2a !important;
+}
+
+.fi-wi-stats-overview-stat-value {
+    color: var(--electric-lime) !important;
+}
+
+/* Table header toolbar y pagination - Forzar Night Rider */
+.fi-ta-header-toolbar,
+[class*="fi-ta-header-toolbar"],
+.fi-pagination,
+.fi-ta-pagination,
+[class*="fi-pagination"] {
+    background-color: var(--night-rider) !important;
+}
+
+/* Override completo de gray-900 en modo oscuro */
+.dark *[class*="dark:bg-gray-900"],
+.dark [class*="bg-gray-900"] {
+    --tw-bg-opacity: 1 !important;
+    background-color: var(--night-rider) !important;
+}
+
+/* Asegurar que optgroup y option usen Night Rider */
+.dark optgroup,
+.dark option {
+    background-color: var(--night-rider) !important;
+}
+
+/* Ring colors gray-900 override */
+.dark *[class*="ring-gray-900"] {
+    --tw-ring-color: rgba(17, 17, 17, 0.5) !important;
+}
+
+/* Ring offset gray-900 override */
+.dark *[class*="ring-offset-gray-900"] {
+    --tw-ring-offset-color: var(--night-rider) !important;
+}
+
+/* ========================================
+   VISIBILIDAD DE FORMULARIOS
+   ======================================== */
+
+/* Labels y texto en formularios más visibles */
+.fi-fo-field-wrp label,
+.fi-fo-field-wrp-label label,
+.fi-section-header-heading,
+.fi-section-header-description {
+    color: #ffffff !important;
+    font-weight: 600 !important;
+}
+
+/* Inputs y selects con mejor contraste */
+.fi-input,
+.fi-select,
+.fi-textarea {
+    color: #ffffff !important;
+    background-color: #1a1a1a !important;
+    border-color: #3a3a3a !important;
+}
+
+.fi-input::placeholder,
+.fi-textarea::placeholder {
+    color: #888888 !important;
+}
+
+/* Select options más visibles */
+.fi-select option {
+    background-color: #1a1a1a !important;
+    color: #ffffff !important;
+}
+
+/* Helper text más visible */
+.fi-fo-field-wrp-hint {
+    color: #cccccc !important;
+}
+
+/* Mejorar contraste de error messages */
+.fi-fo-field-wrp-error-message {
+    color: #ff6b6b !important;
+}
+
+/* Table headers */
+.fi-ta-header-cell {
+    color: #ffffff !important;
+    font-weight: 600 !important;
+}
+
+/* Table cells */
+.fi-ta-cell {
+    color: #e0e0e0 !important;
+}
+
+/* Dropdown menus */
+.fi-dropdown-list-item {
+    color: #ffffff !important;
+}
+
+/* Modal headers */
+.fi-modal-heading {
+    color: #ffffff !important;
+}
+
+/* Breadcrumbs */
+.fi-breadcrumbs-item {
+    color: #ffffff !important;
+}
+
+/* Mejora general de contraste en textos */
+body .fi-body,
+body [class*="fi-"] {
+    color: #e0e0e0;
+}
+
+/* Toggle switches - SOBRESCRIBIR COMPLETAMENTE TODOS LOS ESTILOS */
+@layer components {
+    .dark .fi-fo-toggle.fi-color-primary,
+    .dark button.fi-fo-toggle.fi-color-primary,
+    .dark .fi-fo-toggle[class*="primary"] {
+        --tw-bg-opacity: 1 !important;
+        background-color: rgb(201 255 0) !important;
+        border-color: rgb(201 255 0) !important;
+    }
+    
+    .dark .fi-fo-toggle.fi-color-primary:hover {
+        background-color: rgb(184 238 0) !important;
+    }
+    
+    /* Cuando está apagado (gray) */
+    .dark .fi-fo-toggle.fi-color-gray,
+    .dark button.fi-fo-toggle.fi-color-gray {
+        background-color: rgb(58 58 58) !important;
+        border-color: rgb(58 58 58) !important;
+    }
+}

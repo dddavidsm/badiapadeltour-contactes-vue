@@ -1,0 +1,59 @@
+# Logs
+*.log
+npm-debug.log
+yarn-error.log
+.pnpm-debug.log
+
+# Environment files
+.env
+.env.backup
+.env.production
+.env.local
+
+# OS Files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDEs
+.phpactor.json
+.phpstorm.meta.php
+_ide_helper.php
+_ide_helper_models.php
+/.fleet
+/.idea
+/.nova
+/.vscode
+/.zed
+
+# Laravel
+.phpunit.result.cache
+/.phpunit.cache
+.php-cs-fixer.cache
+.php-cs-fixer.php
+/auth.json
+/storage/*.key
+/storage/pail
+
+# Dependencies
+/node_modules
+/frontend-react/node_modules
+/vendor
+
+# Build
+/public/build
+/public/hot
+/public/storage
+/frontend-react/dist
+
+# Deployment
+Homestead.json
+Homestead.yaml
+
+# Database backups
+*.sql
+*.sqlite
+*.dump
+
+# Scripts temporales
+*.ps1
