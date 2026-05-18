@@ -28,6 +28,7 @@ COPY vite.config.js ./
 COPY postcss.config.js ./
 COPY tailwind.config.js ./
 COPY tsconfig.json ./
+COPY --from=vendor /app/vendor ./vendor
 
 RUN npm run build
 
