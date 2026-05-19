@@ -42,34 +42,34 @@
       :recent-contacts-count="recentContacts.length"
     />
 
-    <!-- ═══════════════════ MODAL: Contacte ════════════════════════════ -->
+    <!-- ═══════════════════ MODAL: CONTACTO ════════════════════════════ -->
     <div v-if="showContactModal" class="bpt-overlay" @click.self="closeContactModal">
       <div class="bpt-modal">
-        <h3>{{ editingContactId ? 'Editar contacte' : 'Nou contacte' }}</h3>
+        <h3>{{ editingContactId ? 'Editar contacto' : 'Nuevo contacto' }}</h3>
         <form @submit.prevent="submitContactForm" novalidate>
           <div class="bpt-form-grid">
             <div class="bpt-field">
-              <label>Nom *</label>
+              <label>Nombre *</label>
               <input v-model.trim="cForm.name" type="text" class="bpt-input" placeholder="Marc" />
               <span class="bpt-err" v-if="cErrors.name">{{ cErrors.name }}</span>
             </div>
             <div class="bpt-field">
-              <label>Cognoms *</label>
+              <label>Apellidos *</label>
               <input v-model.trim="cForm.surname" type="text" class="bpt-input" placeholder="Puig Roca" />
               <span class="bpt-err" v-if="cErrors.surname">{{ cErrors.surname }}</span>
             </div>
             <div class="bpt-field">
-              <label>Telèfon * <small>(E.164)</small></label>
+              <label>Teléfono * <small>(E.164)</small></label>
               <input v-model.trim="cForm.phone" type="tel" class="bpt-input" placeholder="+34612345678" />
               <span class="bpt-err" v-if="cErrors.phone">{{ cErrors.phone }}</span>
             </div>
             <div class="bpt-field">
-              <label>Correu</label>
+              <label>Correo</label>
               <input v-model.trim="cForm.email" type="email" class="bpt-input" placeholder="marc@bpt.cat" />
               <span class="bpt-err" v-if="cErrors.email">{{ cErrors.email }}</span>
             </div>
             <div class="bpt-field">
-              <label>Grup *</label>
+              <label>Grupo *</label>
               <select v-model="cForm.groupId" class="bpt-input">
                 <option :value="null">— Selecciona —</option>
                 <option v-for="g in groups" :key="g.id" :value="g.id">{{ g.name }}</option>
@@ -77,7 +77,7 @@
               <span class="bpt-err" v-if="cErrors.groupId">{{ cErrors.groupId }}</span>
             </div>
             <div class="bpt-field">
-              <label>Ciutat</label>
+              <label>Ciudad</label>
               <select v-model="cForm.city" class="bpt-input">
                 <option value="">— Selecciona —</option>
                 <option v-for="city in PADEL_CITIES" :key="city" :value="city">{{ city }}</option>
@@ -86,23 +86,23 @@
           </div>
           <div class="bpt-modal-actions">
             <button type="submit" class="bpt-btn bpt-btn-primary" :disabled="!isContactFormValid">
-              {{ editingContactId ? 'Guardar' : 'Afegir' }}
+              {{ editingContactId ? 'Guardar' : 'Añadir' }}
             </button>
-            <button type="button" class="bpt-btn bpt-btn-ghost" @click="closeContactModal">Cancel·lar</button>
+            <button type="button" class="bpt-btn bpt-btn-ghost" @click="closeContactModal">Cancelar</button>
           </div>
         </form>
       </div>
     </div>
 
-    <!-- ═══════════════════ MODAL: Grup ════════════════════════════════ -->
+    <!-- ═══════════════════ MODAL: GRUPO ═══════════════════════════════ -->
     <div v-if="showGroupModal" class="bpt-overlay" @click.self="closeGroupModal">
       <div class="bpt-modal">
-        <h3>{{ editingGroupId ? 'Editar grup' : 'Nou grup' }}</h3>
+        <h3>{{ editingGroupId ? 'Editar grupo' : 'Nuevo grupo' }}</h3>
         <form @submit.prevent="submitGroupForm" novalidate>
           <div class="bpt-form-grid">
             <div class="bpt-field">
-              <label>Nom *</label>
-              <input v-model.trim="gForm.name" type="text" class="bpt-input" placeholder="Ex: Companys" />
+              <label>Nombre *</label>
+              <input v-model.trim="gForm.name" type="text" class="bpt-input" placeholder="Ej: Compañeros" />
               <span class="bpt-err" v-if="gErrors.name">{{ gErrors.name }}</span>
             </div>
             <div class="bpt-field">
@@ -114,7 +114,7 @@
             <button type="submit" class="bpt-btn bpt-btn-primary">
               {{ editingGroupId ? 'Guardar' : 'Crear' }}
             </button>
-            <button type="button" class="bpt-btn bpt-btn-ghost" @click="closeGroupModal">Cancel·lar</button>
+            <button type="button" class="bpt-btn bpt-btn-ghost" @click="closeGroupModal">Cancelar</button>
           </div>
         </form>
       </div>
@@ -138,11 +138,11 @@ import {
   loadGroups, saveGroups,
 } from './data/contacts-api';
 
-// Root component owns all state; sections below are presentational children.
+// El componente raíz mantiene el estado; las secciones hijas solo renderizan y emiten eventos.
 const tabs = [
-  { id: 'contacts', label: 'Contactes' },
-  { id: 'groups',   label: 'Grups' },
-  { id: 'stats',    label: 'Estadístiques' },
+  { id: 'contacts', label: 'Contactos' },
+  { id: 'groups',   label: 'Grupos' },
+  { id: 'stats',    label: 'Estadísticas' },
 ] as const;
 
 type TabId = typeof tabs[number]['id'];
@@ -169,13 +169,13 @@ const searchQ = ref('');
 const filterGroup = ref<number | ''>('');
 const sortBy = ref<'name' | 'date'>('name');
 
-// Contact modal state: when showContactModal=true, template renders add/edit modal.
+// Estado del modal de contacto: cuando showContactModal=true se pinta el modal de alta/edición.
 const showContactModal = ref(false);
 const editingContactId = ref<number | null>(null);
 const cForm = reactive<ContactFormData>({ ...EMPTY_CONTACT_FORM });
 const cErrors = reactive<Partial<Record<keyof ContactFormData, string>>>({});
 
-// Group modal state follows the same pattern as contact modal.
+// Estado del modal de grupo: mismo patrón que el modal de contacto.
 const showGroupModal = ref(false);
 const editingGroupId = ref<number | null>(null);
 const gForm = reactive<GroupFormData>({ ...EMPTY_GROUP_FORM });
@@ -271,9 +271,9 @@ function setContactError(field: keyof ContactFormData, message: string | null): 
   return true;
 }
 
-// Called from child section events:
-// - openContactForm(null) => add modal
-// - openContactForm(contact) => edit modal
+// Se llama desde eventos de la sección de contactos:
+// - openContactForm(null) abre el alta
+// - openContactForm(contact) abre la edición
 function openContactForm(contact: Contact | null): void {
   resetContactForm(contact);
   showContactModal.value = true;
@@ -283,17 +283,17 @@ function closeContactModal(): void { showContactModal.value = false; }
 
 function validateContactForm(): boolean {
   let ok = true;
-  ok = setContactError('name', cForm.name.length < 2 ? 'Mínim 2 caràcters' : null) && ok;
-  ok = setContactError('surname', cForm.surname.length < 2 ? 'Mínim 2 caràcters' : null) && ok;
-  ok = setContactError('phone', !PHONE_RE.test(cForm.phone) ? 'Format invàlid (+34612345678)' : null) && ok;
-  ok = setContactError('groupId', !cForm.groupId ? 'Selecciona un grup' : null) && ok;
-  ok = setContactError('email', cForm.email && !EMAIL_RE.test(cForm.email) ? 'Correu invàlid' : null) && ok;
+  ok = setContactError('name', cForm.name.length < 2 ? 'Mínimo 2 caracteres' : null) && ok;
+  ok = setContactError('surname', cForm.surname.length < 2 ? 'Mínimo 2 caracteres' : null) && ok;
+  ok = setContactError('phone', !PHONE_RE.test(cForm.phone) ? 'Formato inválido (+34612345678)' : null) && ok;
+  ok = setContactError('groupId', !cForm.groupId ? 'Selecciona un grupo' : null) && ok;
+  ok = setContactError('email', cForm.email && !EMAIL_RE.test(cForm.email) ? 'Correo inválido' : null) && ok;
 
   const dup = contacts.value.find(
     (c) => c.phone === cForm.phone && c.id !== editingContactId.value
   );
   if (dup) {
-    cErrors.phone = 'Telèfon ja existent';
+    cErrors.phone = 'Teléfono ya existente';
     ok = false;
   }
   return ok;
@@ -312,13 +312,13 @@ function submitContactForm(): void {
   };
 
   if (editingContactId.value !== null) {
-    // Edit flow: replace the found contact while keeping immutable fields.
+    // Flujo de edición: reemplaza el contacto encontrado conservando campos no editables.
     const idx = contacts.value.findIndex((c) => c.id === editingContactId.value);
     if (idx !== -1) {
       contacts.value[idx] = { ...contacts.value[idx], ...payload };
     }
   } else {
-    // Create flow: append a new contact with timestamp id/date.
+    // Flujo de alta: añade contacto nuevo con id/fecha basados en timestamp.
     contacts.value.push({
       id: Date.now(),
       ...payload,
@@ -330,7 +330,7 @@ function submitContactForm(): void {
 }
 
 function deleteContact(id: number): void {
-  if (!confirm('Eliminar aquest contacte?')) return;
+  if (!confirm('¿Eliminar este contacto?')) return;
   contacts.value = contacts.value.filter((c) => c.id !== id);
   persistContacts();
 }
@@ -344,7 +344,7 @@ function closeGroupModal(): void { showGroupModal.value = false; }
 
 function submitGroupForm(): void {
   if (gForm.name.length < 2) {
-    gErrors.name = 'Mínim 2 caràcters';
+    gErrors.name = 'Mínimo 2 caracteres';
     return;
   }
 
@@ -360,18 +360,18 @@ function submitGroupForm(): void {
 
 function deleteGroup(id: number): void {
   if (contacts.value.some((c) => c.groupId === id)) {
-    alert('No pots eliminar un grup amb contactes assignats.'); return;
+    alert('No puedes eliminar un grupo con contactos asignados.'); return;
   }
   if (DEFAULT_GROUPS.some((g) => g.id === id)) {
-    alert('No pots eliminar un grup per defecte.'); return;
+    alert('No puedes eliminar un grupo por defecto.'); return;
   }
-  if (!confirm('Eliminar aquest grup?')) return;
+  if (!confirm('¿Eliminar este grupo?')) return;
   groups.value = groups.value.filter((g) => g.id !== id);
   persistGroups();
 }
 
 onMounted(async () => {
-  // Load local state when module starts.
+  // Carga el estado local al iniciar el módulo.
   groups.value = loadGroups();
   loading.value = true;
   contacts.value = await loadContacts();

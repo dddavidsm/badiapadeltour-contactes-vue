@@ -13,7 +13,7 @@
         class="bpt-input"
         @change="$emit('update:filterGroup', parseFilterValue(($event.target as HTMLSelectElement).value))"
       >
-        <option value="">Tots els grups</option>
+        <option value="">Todos los grupos</option>
         <option v-for="g in groups" :key="g.id" :value="g.id">{{ g.name }}</option>
       </select>
       <select
@@ -21,14 +21,14 @@
         class="bpt-input"
         @change="$emit('update:sortBy', ($event.target as HTMLSelectElement).value as 'name' | 'date')"
       >
-        <option value="name">Ordenar per nom</option>
-        <option value="date">Ordenar per data</option>
+        <option value="name">Ordenar por nombre</option>
+        <option value="date">Ordenar por fecha</option>
       </select>
-      <button class="bpt-btn bpt-btn-primary" @click="$emit('open-contact')">+ Nou contacte</button>
+      <button class="bpt-btn bpt-btn-primary" @click="$emit('open-contact')">+ Nuevo contacto</button>
     </div>
 
-    <div v-if="loading" class="bpt-state">Carregant…</div>
-    <div v-else-if="!contacts.length" class="bpt-state">Cap contacte trobat.</div>
+    <div v-if="loading" class="bpt-state">Cargando…</div>
+    <div v-else-if="!contacts.length" class="bpt-state">No se han encontrado contactos.</div>
     <div v-else class="bpt-grid">
       <div v-for="contact in contacts" :key="contact.id" class="bpt-card bpt-contact-card">
         <div class="bpt-avatar" :style="{ background: groupColorOf(contact.groupId) }">
@@ -58,7 +58,7 @@
 <script setup lang="ts">
 import type { Contact, Group } from '../data/contact-types';
 
-// Stateless UI section: receives data via props and emits user actions to parent.
+// Sección de UI sin estado propio: recibe datos por props y emite acciones al padre.
 defineProps<{
   loading: boolean;
   contacts: Contact[];
