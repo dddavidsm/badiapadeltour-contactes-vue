@@ -1,7 +1,7 @@
 <template>
   <div class="bpt-topbar">
     <div class="bpt-topbar-left">
-      <span class="bpt-logo">🎾 Contactes Pàdel</span>
+      <span class="bpt-logo">🎾 Contactos Pádel</span>
     </div>
     <div class="bpt-tabs">
       <button

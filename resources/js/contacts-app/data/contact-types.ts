@@ -45,10 +45,10 @@ export const PADEL_CITIES = [
 ];
 
 export const DEFAULT_GROUPS: Group[] = [
-    { id: 1, name: 'Companys', color: '#c9ff00' },
-    { id: 2, name: 'Rivals', color: '#ff6b6b' },
-    { id: 3, name: 'Entrenadors', color: '#4fc3f7' },
-    { id: 4, name: 'Organitzadors', color: '#ce93d8' },
+    { id: 1, name: 'Compañeros', color: '#c9ff00' },
+    { id: 2, name: 'Rivales', color: '#ff6b6b' },
+    { id: 3, name: 'Entrenadores', color: '#4fc3f7' },
+    { id: 4, name: 'Organizadores', color: '#ce93d8' },
 ];
 
 export const DEFAULT_CONTACTS: Contact[] = [

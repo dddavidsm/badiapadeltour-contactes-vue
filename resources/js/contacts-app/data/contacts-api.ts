@@ -1,10 +1,9 @@
 /**
  * contacts-api.ts
  *
- * Persistent storage: localStorage in the current browser.
- * Remote: JSONPlaceholder is used as the required "external API" for the initial
- * data fetch so the assignment requirement is satisfied; actual CRUD is stored
- * in localStorage so data survives page reloads.
+ * Persistencia: localStorage en el navegador actual.
+ * Fuente remota: JSONPlaceholder se usa como API externa para la carga inicial.
+ * El CRUD real se guarda en localStorage para mantener los cambios tras recargar.
  */
 
 import { DEFAULT_CONTACTS, DEFAULT_GROUPS } from './contact-types';
@@ -35,8 +34,8 @@ export function saveGroups(groups: Group[]): void {
 // ─── Contacts ──────────────────────────────────────────────────────────────
 
 /**
- * First call fetches from JSONPlaceholder and merges with default contacts.
- * Subsequent calls load from localStorage.
+ * La primera carga consulta JSONPlaceholder y mezcla esos datos con contactos por defecto.
+ * Las siguientes cargas leen directamente de localStorage.
  */
 export async function loadContacts(): Promise<Contact[]> {
     const raw = localStorage.getItem(storageKey('contacts'));
@@ -44,7 +43,7 @@ export async function loadContacts(): Promise<Contact[]> {
         return JSON.parse(raw) as Contact[];
     }
 
-    // First visit: fetch from API and normalise into Contact shape
+    // Primera visita: consulta API y normaliza al formato Contact
     let apiContacts: Contact[] = [];
     try {
         const res = await fetch(`${FAKE_API}?_limit=5`);
@@ -69,7 +68,7 @@ export async function loadContacts(): Promise<Contact[]> {
             }));
         }
     } catch {
-        // network unavailable — continue with defaults
+        // Si falla la red, continúa con datos por defecto
     }
 
     const contacts = [...DEFAULT_CONTACTS, ...apiContacts];

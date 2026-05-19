@@ -3,16 +3,16 @@
     <div class="bpt-stats-grid">
       <div class="bpt-stat-card">
         <span class="bpt-stat-val">{{ contactsCount }}</span>
-        <span class="bpt-stat-label">Total contactes</span>
+        <span class="bpt-stat-label">Total contactos</span>
       </div>
       <div class="bpt-stat-card">
         <span class="bpt-stat-val">{{ recentContactsCount }}</span>
-        <span class="bpt-stat-label">Últims 7 dies</span>
+        <span class="bpt-stat-label">Últimos 7 días</span>
       </div>
     </div>
 
     <div class="bpt-card" style="margin-top:1rem">
-      <h4 style="margin:0 0 .75rem;color:var(--electric)">Contactes per grup</h4>
+      <h4 style="margin:0 0 .75rem;color:var(--electric)">Contactos por grupo</h4>
       <div v-for="group in groups" :key="group.id" class="bpt-stat-row">
         <span class="bpt-group-dot" :style="{ background: group.color }"></span>
         <span>{{ group.name }}</span>
