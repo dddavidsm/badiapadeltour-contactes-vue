@@ -138,6 +138,7 @@ import {
   loadGroups, saveGroups,
 } from './data/contacts-api';
 
+// Root component owns all state; sections below are presentational children.
 const tabs = [
   { id: 'contacts', label: 'Contactes' },
   { id: 'groups',   label: 'Grups' },
@@ -167,10 +168,14 @@ const loading = ref(false);
 const searchQ = ref('');
 const filterGroup = ref<number | ''>('');
 const sortBy = ref<'name' | 'date'>('name');
+
+// Contact modal state: when showContactModal=true, template renders add/edit modal.
 const showContactModal = ref(false);
 const editingContactId = ref<number | null>(null);
 const cForm = reactive<ContactFormData>({ ...EMPTY_CONTACT_FORM });
 const cErrors = reactive<Partial<Record<keyof ContactFormData, string>>>({});
+
+// Group modal state follows the same pattern as contact modal.
 const showGroupModal = ref(false);
 const editingGroupId = ref<number | null>(null);
 const gForm = reactive<GroupFormData>({ ...EMPTY_GROUP_FORM });
@@ -266,6 +271,9 @@ function setContactError(field: keyof ContactFormData, message: string | null): 
   return true;
 }
 
+// Called from child section events:
+// - openContactForm(null) => add modal
+// - openContactForm(contact) => edit modal
 function openContactForm(contact: Contact | null): void {
   resetContactForm(contact);
   showContactModal.value = true;
@@ -304,11 +312,13 @@ function submitContactForm(): void {
   };
 
   if (editingContactId.value !== null) {
+    // Edit flow: replace the found contact while keeping immutable fields.
     const idx = contacts.value.findIndex((c) => c.id === editingContactId.value);
     if (idx !== -1) {
       contacts.value[idx] = { ...contacts.value[idx], ...payload };
     }
   } else {
+    // Create flow: append a new contact with timestamp id/date.
     contacts.value.push({
       id: Date.now(),
       ...payload,
@@ -361,6 +371,7 @@ function deleteGroup(id: number): void {
 }
 
 onMounted(async () => {
+  // Load local state when module starts.
   groups.value = loadGroups();
   loading.value = true;
   contacts.value = await loadContacts();

@@ -58,6 +58,7 @@
 <script setup lang="ts">
 import type { Contact, Group } from '../data/contact-types';
 
+// Stateless UI section: receives data via props and emits user actions to parent.
 defineProps<{
   loading: boolean;
   contacts: Contact[];
