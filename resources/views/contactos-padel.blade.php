@@ -23,11 +23,7 @@
     @include('components.header')
 
     <main>
-        <div
-            id="contactos-padel-app"
-            data-user-id="{{ auth()->id() ?? '0' }}"
-            data-user-name="{{ auth()->user()?->name ?? 'Convidat' }}"
-        ></div>
+        <div id="contactos-padel-app"></div>
     </main>
 
     @include('components.footer')

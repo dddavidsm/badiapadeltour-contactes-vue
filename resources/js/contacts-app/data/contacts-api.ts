@@ -1,7 +1,7 @@
 /**
  * contacts-api.ts
  *
- * Persistent storage: localStorage per-user (key = bpt_contacts_{userId}).
+ * Persistent storage: localStorage in the current browser.
  * Remote: JSONPlaceholder is used as the required "external API" for the initial
  * data fetch so the assignment requirement is satisfied; actual CRUD is stored
  * in localStorage so data survives page reloads.
@@ -12,24 +12,24 @@ import type { Contact, Group } from './contact-types';
 
 const FAKE_API = 'https://jsonplaceholder.typicode.com/users';
 
-function storageKey(userId: string, suffix: string): string {
-    return `bpt_contacts_${userId}_${suffix}`;
+function storageKey(suffix: string): string {
+    return `bpt_contacts_${suffix}`;
 }
 
 // ─── Groups ────────────────────────────────────────────────────────────────
 
-export function loadGroups(userId: string): Group[] {
-    const raw = localStorage.getItem(storageKey(userId, 'groups'));
+export function loadGroups(): Group[] {
+    const raw = localStorage.getItem(storageKey('groups'));
     if (raw) {
         return JSON.parse(raw) as Group[];
     }
     const defaults = [...DEFAULT_GROUPS];
-    localStorage.setItem(storageKey(userId, 'groups'), JSON.stringify(defaults));
+    localStorage.setItem(storageKey('groups'), JSON.stringify(defaults));
     return defaults;
 }
 
-export function saveGroups(userId: string, groups: Group[]): void {
-    localStorage.setItem(storageKey(userId, 'groups'), JSON.stringify(groups));
+export function saveGroups(groups: Group[]): void {
+    localStorage.setItem(storageKey('groups'), JSON.stringify(groups));
 }
 
 // ─── Contacts ──────────────────────────────────────────────────────────────
@@ -38,8 +38,8 @@ export function saveGroups(userId: string, groups: Group[]): void {
  * First call fetches from JSONPlaceholder and merges with default contacts.
  * Subsequent calls load from localStorage.
  */
-export async function loadContacts(userId: string): Promise<Contact[]> {
-    const raw = localStorage.getItem(storageKey(userId, 'contacts'));
+export async function loadContacts(): Promise<Contact[]> {
+    const raw = localStorage.getItem(storageKey('contacts'));
     if (raw) {
         return JSON.parse(raw) as Contact[];
     }
@@ -73,40 +73,10 @@ export async function loadContacts(userId: string): Promise<Contact[]> {
     }
 
     const contacts = [...DEFAULT_CONTACTS, ...apiContacts];
-    localStorage.setItem(storageKey(userId, 'contacts'), JSON.stringify(contacts));
+    localStorage.setItem(storageKey('contacts'), JSON.stringify(contacts));
     return contacts;
 }
 
-export function saveContacts(userId: string, contacts: Contact[]): void {
-    localStorage.setItem(storageKey(userId, 'contacts'), JSON.stringify(contacts));
-}
-
-// ─── Call history ──────────────────────────────────────────────────────────
-
-export function loadHistory(userId: string): CallEntry[] {
-    const raw = localStorage.getItem(storageKey(userId, 'history'));
-    return raw ? (JSON.parse(raw) as CallEntry[]) : [];
-}
-
-export function saveHistory(userId: string, history: CallEntry[]): void {
-    localStorage.setItem(storageKey(userId, 'history'), JSON.stringify(history));
-}
-
-export function addHistoryEntry(
-    userId: string,
-    contactId: number,
-    type: CallEntry['type'],
-    note = ''
-): CallEntry {
-    const history = loadHistory(userId);
-    const entry: CallEntry = {
-        id: Date.now(),
-        contactId,
-        type,
-        date: new Date().toISOString(),
-        note,
-    };
-    history.unshift(entry);
-    saveHistory(userId, history.slice(0, 100)); // keep last 100
-    return entry;
+export function saveContacts(contacts: Contact[]): void {
+    localStorage.setItem(storageKey('contacts'), JSON.stringify(contacts));
 }
