@@ -1,28 +1,32 @@
+// Exportamos un tipo básico para el nombre del grupo
 export type GroupName = string;
 
+// INTERFAZ GROUP: Define la estructura exacta que debe tener un Grupo en la app
 export interface Group {
     id: number;
     name: string;
     color: string;
 }
 
+// INTERFAZ CONTACT: Define cómo se guarda un contacto internamente en la lista general
 export interface Contact {
     id: number;
     name: string;
     surname: string;
     phone: string;
     email: string;
-    groupId: number;
+    groupId: number; // Relación con el ID del grupo al que pertenece
     city: string;
-    createdAt: string; // ISO date string
+    createdAt: string; // ISO date string (ej. "2026-05-20T13:43:00.000Z")
 }
 
+// INTERFACES PARA FORMULARIOS: No tienen 'id' ni 'createdAt' porque se están creando en el momento
 export interface ContactFormData {
     name: string;
     surname: string;
     phone: string;
     email: string;
-    groupId: number | null;
+    groupId: number | null; // null al inicio porque no se ha seleccionado nada
     city: string;
 }
 
@@ -31,6 +35,7 @@ export interface GroupFormData {
     color: string;
 }
 
+// DATOS ESTÁTICOS: Ciudades de la zona para reutilizar en selects sin repetir código
 export const PADEL_CITIES = [
     'Badia del Vallès',
     'Sabadell',
@@ -44,6 +49,7 @@ export const PADEL_CITIES = [
     'Santa Perpètua de Mogoda',
 ];
 
+// DATOS POR DEFECTO: Lo que se carga si la aplicación está vacía (Grupos)
 export const DEFAULT_GROUPS: Group[] = [
     { id: 1, name: 'Compañeros', color: '#c9ff00' },
     { id: 2, name: 'Rivales', color: '#ff6b6b' },
@@ -51,6 +57,7 @@ export const DEFAULT_GROUPS: Group[] = [
     { id: 4, name: 'Organizadores', color: '#ce93d8' },
 ];
 
+// DATOS POR DEFECTO: Contactos semilla para que la app nunca se vea vacía la primera vez
 export const DEFAULT_CONTACTS: Contact[] = [
     {
         id: 1001, name: 'Marc', surname: 'Puig', phone: '+34612345678', email: 'marc.puig@bpt.cat',
