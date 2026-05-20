@@ -1,22 +1,22 @@
 <template>
-  <div class="bpt-section">
-    <div class="bpt-filters">
-      <button class="bpt-btn bpt-btn-primary" @click="$emit('open-group')">+ Nuevo grupo</button>
+  <div class="bpt-groups">
+    <div class="bpt-groups-actions">
+      <!-- Ejecuta directamente la función del padre. Sin emit. -->
+      <button class="bpt-btn" @click="onOpenGroup()">Nuevo grupo</button>
     </div>
-    
-    <div class="bpt-grid">
-      <div v-for="group in groups" :key="group.id" class="bpt-card bpt-group-card">
-        <div class="bpt-group-dot" :style="{ background: group.color }"></div>
-        
-        <div class="bpt-group-info">
+
+    <div class="bpt-groups-list">
+      <div v-for="group in groups" :key="group.id" class="bpt-group-card">
+        <div class="bpt-group-color" :style="{ background: group.color }"></div>
+
+        <div class="bpt-group-meta">
           <strong>{{ group.name }}</strong>
-          <span class="bpt-muted">{{ contactsPerGroup[group.id] ?? 0 }} contactos</span>
+          <span>{{ contactsPerGroup[group.id] ?? 0 }} contactos</span>
         </div>
-        
-        <div class="bpt-card-actions">
-          <button class="bpt-icon-btn" @click="$emit('edit-group', group)">✏️</button>
-          
-          <button class="bpt-icon-btn danger" @click="$emit('delete-group', group.id)">🗑️</button>
+
+        <div class="bpt-group-actions">
+          <button class="bpt-btn ghost" @click="onEditGroup(group)">Editar</button>
+          <button class="bpt-btn danger" @click="onDeleteGroup(group.id)">Eliminar</button>
         </div>
       </div>
     </div>
@@ -26,16 +26,16 @@
 <script setup lang="ts">
 import type { Group } from '../data/contact-types';
 
-// PROPS: Datos de entrada inyectados por el componente padre
+// PROPS: Datos de visualización + funciones del padre para cada acción.
+// Sin defineEmits: el hijo ejecuta directamente las funciones que recibe, sin notificar hacia arriba.
 defineProps<{
   groups: Group[]; // Lista completa con todos los grupos de la app
   contactsPerGroup: Record<number, number>; // Diccionario con los contadores de jugadores por grupo
-}>();
-
-// EMITS: Eventos que este componente puede disparar hacia el exterior con su tipado correspondiente
-defineEmits<{
-  'open-group': []; // Evento simple sin argumentos para abrir creación
-  'edit-group': [group: Group]; // Envía el objeto de grupo seleccionado como argumento
-  'delete-group': [id: number]; // Envía el identificador numérico único del grupo a eliminar
-}>();
+  // Función del padre: abre el formulario de creación
+  onOpenGroup: () => void;
+  // Función del padre: abre el formulario con el grupo a editar
+  onEditGroup: (group: Group) => void;
+  // Función del padre: valida las reglas de borrado y elimina si procede
+  onDeleteGroup: (id: number) => void;
+}>(); 
 </script>

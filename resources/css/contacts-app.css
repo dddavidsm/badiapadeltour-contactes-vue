@@ -1,0 +1,357 @@
+#contactos-padel-app .bpt-app {
+  max-width: 1120px;
+  margin: 1.5rem auto;
+  padding: 1rem;
+  color: #eef1f5;
+}
+
+#contactos-padel-app .bpt-topbar {
+  display: grid;
+  gap: 0.85rem;
+  margin-bottom: 1rem;
+}
+
+#contactos-padel-app .bpt-topbar-title {
+  font-size: 1.15rem;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+}
+
+#contactos-padel-app .bpt-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+#contactos-padel-app .bpt-tab {
+  border: 1px solid #2a2f38;
+  border-radius: 999px;
+  background: #11161f;
+  color: #d6dceb;
+  padding: 0.45rem 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+#contactos-padel-app .bpt-tab.active,
+#contactos-padel-app .bpt-tab:disabled {
+  background: var(--electric);
+  color: #101010;
+  border-color: var(--electric);
+}
+
+#contactos-padel-app .bpt-contacts-section,
+#contactos-padel-app .bpt-groups,
+#contactos-padel-app .bpt-stats,
+#contactos-padel-app .bpt-history {
+  display: grid;
+  gap: 0.9rem;
+}
+
+#contactos-padel-app .bpt-filters {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) 200px 200px auto;
+  gap: 0.5rem;
+}
+
+#contactos-padel-app .bpt-input,
+#contactos-padel-app .bpt-select,
+#contactos-padel-app .bpt-form input,
+#contactos-padel-app .bpt-form select {
+  min-height: 42px;
+  border-radius: 9px;
+  border: 1px solid #2a2f38;
+  background: #10151d;
+  color: #ecf0f7;
+  padding: 0.45rem 0.65rem;
+}
+
+#contactos-padel-app .bpt-btn {
+  border: 0;
+  border-radius: 9px;
+  padding: 0.5rem 0.8rem;
+  background: var(--electric);
+  color: #101010;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+#contactos-padel-app .bpt-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+#contactos-padel-app .bpt-btn.ghost {
+  background: #242b39;
+  color: #e6ebf5;
+}
+
+#contactos-padel-app .bpt-btn.danger {
+  background: #ff6f7b;
+}
+
+#contactos-padel-app .bpt-btn.icon {
+  min-width: 42px;
+  font-size: 1rem;
+}
+
+#contactos-padel-app .bpt-list,
+#contactos-padel-app .bpt-groups-list {
+  display: grid;
+  gap: 0.65rem;
+}
+
+#contactos-padel-app .bpt-card,
+#contactos-padel-app .bpt-group-card {
+  border: 1px solid #2a2f38;
+  border-radius: 12px;
+  background: #11161f;
+  padding: 0.65rem;
+}
+
+#contactos-padel-app .bpt-card {
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr) auto;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+#contactos-padel-app .bpt-avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+  color: #111;
+}
+
+#contactos-padel-app .bpt-meta {
+  min-width: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.6rem;
+  align-items: center;
+}
+
+#contactos-padel-app .bpt-meta strong {
+  width: 100%;
+  font-size: 0.98rem;
+}
+
+#contactos-padel-app .bpt-meta span {
+  color: #b8c2d3;
+  font-size: 0.92rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#contactos-padel-app .bpt-chip {
+  border-radius: 999px;
+  padding: 0.15rem 0.5rem;
+  font-weight: 700;
+}
+
+#contactos-padel-app .bpt-actions,
+#contactos-padel-app .bpt-group-actions {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+#contactos-padel-app .bpt-actions {
+  justify-content: flex-end;
+}
+
+#contactos-padel-app .bpt-empty {
+  border: 1px dashed #2a2f38;
+  color: #9ba7b9;
+  border-radius: 12px;
+  padding: 1rem;
+  margin: 0;
+}
+
+#contactos-padel-app .bpt-groups-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+#contactos-padel-app .bpt-group-card {
+  display: grid;
+  grid-template-columns: 14px minmax(0, 1fr) auto;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+#contactos-padel-app .bpt-group-color {
+  width: 14px;
+  height: 48px;
+  border-radius: 4px;
+}
+
+#contactos-padel-app .bpt-group-meta strong {
+  display: block;
+}
+
+#contactos-padel-app .bpt-group-meta span,
+#contactos-padel-app .bpt-bar-count,
+#contactos-padel-app .bpt-history-item span {
+  color: #b8c2d3;
+  font-size: 0.92rem;
+}
+
+#contactos-padel-app .bpt-stat-cards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(180px, 1fr));
+  gap: 0.7rem;
+}
+
+#contactos-padel-app .bpt-stat-card,
+#contactos-padel-app .bpt-stats-groups {
+  border: 1px solid #2a2f38;
+  background: #11161f;
+  border-radius: 12px;
+  padding: 0.85rem;
+}
+
+#contactos-padel-app .bpt-stat-card {
+  display: grid;
+  gap: 0.25rem;
+}
+
+#contactos-padel-app .bpt-stat-value {
+  font-size: 1.55rem;
+  font-weight: 800;
+  color: var(--electric);
+}
+
+#contactos-padel-app .bpt-stat-label {
+  color: #b8c2d3;
+  font-size: 0.92rem;
+}
+
+#contactos-padel-app .bpt-stats-groups {
+  display: grid;
+  gap: 0.55rem;
+}
+
+#contactos-padel-app .bpt-stats-groups h4 {
+  margin: 0 0 0.25rem;
+}
+
+#contactos-padel-app .bpt-bar-row {
+  display: grid;
+  grid-template-columns: 14px minmax(140px, 220px) minmax(120px, 1fr) 28px;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+#contactos-padel-app .bpt-color-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+}
+
+#contactos-padel-app .bpt-bar-name {
+  color: #dce2ee;
+  font-size: 0.94rem;
+}
+
+#contactos-padel-app .bpt-bar-track {
+  height: 8px;
+  background: #242b39;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+#contactos-padel-app .bpt-bar-fill {
+  display: block;
+  height: 100%;
+}
+
+#contactos-padel-app .bpt-history-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.8rem 1rem;
+  border: 1px solid #2a2f38;
+  border-radius: 10px;
+  background: #12161c;
+}
+
+#contactos-padel-app .bpt-modal {
+  width: min(520px, calc(100% - 2rem));
+  border: 1px solid #2a2f38;
+  border-radius: 14px;
+  background: #0d1118;
+  color: #eef1f5;
+  padding: 1rem;
+}
+
+#contactos-padel-app .bpt-modal::backdrop {
+  background: rgba(0, 0, 0, 0.55);
+}
+
+#contactos-padel-app .bpt-form {
+  display: grid;
+  gap: 0.7rem;
+}
+
+#contactos-padel-app .bpt-form small {
+  margin-top: -0.3rem;
+  color: #ff7373;
+}
+
+#contactos-padel-app .bpt-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  margin-top: 0.2rem;
+}
+
+@media (max-width: 980px) {
+  #contactos-padel-app .bpt-filters {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  #contactos-padel-app .bpt-card {
+    grid-template-columns: 44px 1fr;
+  }
+
+  #contactos-padel-app .bpt-avatar {
+    width: 44px;
+    height: 44px;
+  }
+
+  #contactos-padel-app .bpt-actions {
+    grid-column: 1 / -1;
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 760px) {
+  #contactos-padel-app .bpt-stat-cards {
+    grid-template-columns: 1fr;
+  }
+
+  #contactos-padel-app .bpt-bar-row {
+    grid-template-columns: 10px 1fr 1fr 24px;
+  }
+}
+
+@media (max-width: 720px) {
+  #contactos-padel-app .bpt-group-card {
+    grid-template-columns: 10px 1fr;
+  }
+
+  #contactos-padel-app .bpt-group-actions {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 640px) {
+  #contactos-padel-app .bpt-filters {
+    grid-template-columns: 1fr;
+  }
+}

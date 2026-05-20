@@ -7,7 +7,7 @@
  */
 
 import { DEFAULT_CONTACTS, DEFAULT_GROUPS } from './contact-types';
-import type { Contact, Group } from './contact-types';
+import type { Contact, Group, CallRecord } from './contact-types';
 
 const FAKE_API = 'https://jsonplaceholder.typicode.com/users';
 
@@ -83,4 +83,17 @@ export async function loadContacts(): Promise<Contact[]> {
 export function saveContacts(contacts: Contact[]): void {
     // Sobrescribe el almacenamiento local con el array de contactos completo (se llama tras editar/borrar/añadir)
     localStorage.setItem(storageKey('contacts'), JSON.stringify(contacts));
+}
+
+// ─── Call History ──────────────────────────────────────────────────────────────
+
+export function loadCallHistory(): CallRecord[] {
+    // Lee el historial guardado; si no existe aún, devuelve un array vacío
+    const raw = localStorage.getItem(storageKey('calls'));
+    return raw ? JSON.parse(raw) as CallRecord[] : [];
+}
+
+export function saveCallHistory(calls: CallRecord[]): void {
+    // Sobrescribe el historial completo (se llama tras añadir o limpiar entradas)
+    localStorage.setItem(storageKey('calls'), JSON.stringify(calls));
 }

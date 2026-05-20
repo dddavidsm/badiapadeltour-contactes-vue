@@ -18,6 +18,15 @@ export interface Contact {
     groupId: number; // Relación con el ID del grupo al que pertenece
     city: string;
     createdAt: string; // ISO date string (ej. "2026-05-20T13:43:00.000Z")
+    favorite?: boolean; // Opcional: true si el contacto está marcado como favorito
+}
+
+// INTERFAZ CALLRECORD: Representa una entrada en el historial de llamadas
+export interface CallRecord {
+    id: number;          // Timestamp usado como ID único (Date.now())
+    contactId: number;   // ID del contacto llamado (para referencia)
+    contactName: string; // Nombre completo guardado en el momento de la llamada
+    date: string;        // ISO date string del momento exacto de la llamada
 }
 
 // INTERFACES PARA FORMULARIOS: No tienen 'id' ni 'createdAt' porque se están creando en el momento
