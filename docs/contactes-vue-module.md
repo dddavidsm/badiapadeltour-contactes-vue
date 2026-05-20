@@ -1,197 +1,130 @@
-# Modulo Contactos Padel (Vue + json-server)
+# Modulo Contactos Padel - Arquitectura Multicapa Atomica
 
-## Resumen
-Este modulo usa arquitectura multicapa:
+## Objetivo
+Consolidar el patron:
 
-1. Vistas: estado de UI, formularios y eventos de usuario.
-2. Servicios: reglas de negocio y orquestacion.
-3. API: llamadas HTTP cortas con `fetch` via helper `request()`.
+Smart Components (Vistas) -> Servicios Atomicos -> Fake REST API (json-server)
 
-Persistencia de datos: `json-server` en `http://localhost:3001` sobre `db.json`.
+## Decisiones de arquitectura
 
-## Flujo de ejecucion
+1. Sin store global
+- Eliminado el estado global centralizado.
+- Cada vista mantiene su estado reactivo local (`ref`, `reactive`, `computed`).
 
-1. Laravel renderiza una vista Blade con el contenedor `#contactos-padel-app`.
-2. `resources/js/contacts-app/main.ts` monta la app Vue.
-3. `resources/js/contacts-app/App.vue` selecciona vista activa:
-   - Contactos
-   - Grupos
-   - Estadisticas
-4. Cada vista llama a servicios.
-5. Los servicios llaman a capa API.
-6. La capa API usa `request()` para hablar con `json-server`.
+2. Sin fachadas de agregacion
+- No existe `AppDataService`.
+- No existe ninguna funcion tipo `getContactsViewData` en servicios.
 
-## Estructura actual
+3. Servicios atomicos
+- `ContactService.ts`: CRUD directo de contactos sobre `http://localhost:3001/contactos`.
+- `GrupoService.ts`: CRUD directo de grupos sobre `http://localhost:3001/grupos`.
+- Cada metodo hace una sola responsabilidad HTTP.
+
+4. Vistas como controladores
+- `ContactosView.vue`, `GruposView.vue` y `StatsView.vue` combinan servicios en `onMounted` con `Promise.all`.
+- Las vistas orquestan sus casos de uso sin mover esa logica a servicios agregadores.
+
+## Estructura final
 
 ```text
 resources/js/contacts-app/
   App.vue
   main.ts
-  api/
-    request.ts
-    contactApi.ts
-    grupoApi.ts
-    historialApi.ts
-  services/
-    ContactoService.ts
-    GrupoService.ts
-    HistorialService.ts
-  data/
-    contact-types.ts
-  views/
-    ContactosView.vue
-    GruposView.vue
-    StatsView.vue
   components/
     AppMenu.vue
     ContactoItem.vue
     GrupoItem.vue
+  data/
+    contact-types.ts
+  services/
+    ContactService.ts
+    GrupoService.ts
+  views/
+    ContactosView.vue
+    GruposView.vue
+    StatsView.vue
 ```
 
-## Modelo de datos
+## Contratos de datos
 
-Definido en `resources/js/contacts-app/data/contact-types.ts`:
+En `resources/js/contacts-app/data/contact-types.ts`:
 
-- `Grupo`
 - `Contacto`
+- `Grupo`
 - `HistorialItem`
-- `GrupoFormData`
 - `ContactoFormData`
+- `GrupoFormData`
 
-## Capa API
+## Servicios atomicos
 
-### request helper
+### ContactService
 
-`resources/js/contacts-app/api/request.ts` centraliza:
+`resources/js/contacts-app/services/ContactService.ts`
 
-- base URL (`http://localhost:3001`)
-- control de errores HTTP
-- parse de respuesta JSON
+Metodos:
 
-Ejemplo:
-
-```ts
-return request<Contacto[]>('/contactos');
-```
-
-### API de Contactos
-
-`resources/js/contacts-app/api/contactApi.ts`
-
-- `getContactosApi()`
-- `getContactoByIdApi(id)`
-- `createContactoApi(payload)`
-- `updateContactoApi(id, payload)`
-- `deleteContactoApi(id)`
-
-### API de Grupos
-
-`resources/js/contacts-app/api/grupoApi.ts`
-
-- `getGruposApi()`
-- `getGrupoByIdApi(id)`
-- `createGrupoApi(payload)`
-- `updateGrupoApi(id, payload)`
-- `deleteGrupoApi(id)`
-
-### API de Historial
-
-`resources/js/contacts-app/api/historialApi.ts`
-
-- `getHistorialApi()`
-- `getHistorialByIdApi(id)`
-- `createHistorialApi(payload)`
-- `updateHistorialApi(id, payload)`
-- `deleteHistorialApi(id)`
-
-## Capa Servicios
-
-### ContactoService
-
-`resources/js/contacts-app/services/ContactoService.ts`
-
-Responsabilidades:
-
-- Orquestacion de datos para vistas con `getContactosViewData()`.
-- Metodo `saveContacto(payload, id?)` para alta/edicion.
-- Metodo `removeContacto(id)` para borrado.
-- Registro automatico en historial al guardar o eliminar.
-- No expone metodos pasarela redundantes cuando solo replican el CRUD de `contactApi`.
+- `getContacts()`
+- `getContactById(id)`
+- `createContact(payload)`
+- `updateContact(id, payload)`
+- `deleteContact(id)`
 
 ### GrupoService
 
 `resources/js/contacts-app/services/GrupoService.ts`
 
-Responsabilidades:
+Metodos:
 
-- CRUD de grupos via API.
-- Metodo `saveGrupo(payload, id?)` para alta/edicion.
-- Metodo `removeGrupo(id)` para borrado.
+- `getGroups()`
+- `getGroupById(id)`
+- `createGroup(payload)`
+- `updateGroup(id, payload)`
+- `deleteGroup(id)`
 
-### HistorialService
-
-`resources/js/contacts-app/services/HistorialService.ts`
-
-Encapsula operaciones sobre historial.
-
-## Capa Vistas
+## Vistas Smart
 
 ### ContactosView
 
-`resources/js/contacts-app/views/ContactosView.vue`
-
-- Carga inicial en `onMounted` usando `ContactoService.getContactosViewData()`.
-- Estado reactivo de filtros y modal.
-- Formulario de contacto.
-- Llama a `ContactoService`.
+- Carga `contactos` y `grupos` con:
+  - `Promise.all([ContactService.getContacts(), GrupoService.getGroups()])`
+- Alta/edicion con `createContact` y `updateContact`.
+- Borrado con `deleteContact`.
 
 ### GruposView
 
-`resources/js/contacts-app/views/GruposView.vue`
-
-- Carga grupos y contactos con `ContactoService.getContactosViewData()` para mostrar conteo por grupo.
-- Alta/edicion/borrado de grupos.
-- Sin `emit`: se usan callbacks por props en componentes hijos.
+- Carga `grupos` y `contactos` con:
+  - `Promise.all([ContactService.getContacts(), GrupoService.getGroups()])`
+- Alta/edicion con `createGroup` y `updateGroup`.
+- Borrado con `deleteGroup`.
 
 ### StatsView
 
-`resources/js/contacts-app/views/StatsView.vue`
+- Carga `contactos` y `grupos` con:
+  - `Promise.all([ContactService.getContacts(), GrupoService.getGroups()])`
+- Calcula totales, ultimos 7 dias y distribucion por grupo.
 
-- Carga grupos y contactos con `ContactoService.getContactosViewData()`.
-- Calcula:
-  - total de contactos
-  - contactos de ultimos 7 dias
-  - contactos por grupo (barras)
+## Infraestructura de datos
 
-## Componentes presentacionales
+Archivo raiz: `db.json`
 
-- `resources/js/contacts-app/components/ContactoItem.vue`
-- `resources/js/contacts-app/components/GrupoItem.vue`
-
-Ambos son componentes tontos:
-
-- reciben datos por props
-- invocan callbacks por props (`onEdit`, `onDelete`)
-- no emiten eventos
-
-## Datos de desarrollo
-
-`db.json` define colecciones:
+Colecciones:
 
 - `contactos`
 - `grupos`
 - `historial`
 
-Ejecutar json-server:
+## Arranque local
+
+Scripts definidos en `package.json`:
+
+- `dev`: levanta Vite.
+- `api`: levanta json-server en el puerto 3001.
+- `app`: ejecuta `run-p dev api` para frontend + API fake en paralelo.
+
+Comando unico:
 
 ```bash
-npx json-server --watch db.json --port 3001
+npm run app
 ```
 
-## Estado actual de la refactorizacion
-
-- Arquitectura separada por capas completada.
-- Nomenclatura estandarizada a `Contacto` y `Grupo`.
-- Servicios y APIs simplificados y cortos.
-- Eliminados archivos duplicados/legacy de servicios anteriores.
-- Validacion de TypeScript en `contacts-app` sin errores.
+Con esta configuracion, la app frontend y json-server arrancan juntos y la capa de servicios atomicos funciona contra la API fake local.
