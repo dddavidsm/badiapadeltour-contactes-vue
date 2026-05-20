@@ -7,7 +7,9 @@
       "phone": "612345678",
       "email": "marc.puig@padel.com",
       "groupId": 1,
-      "city": "Sabadell"
+      "city": "Sabadell",
+      "createdAt": "2026-05-14T10:30:00.000Z",
+      "favorite": true
     },
     {
       "id": 2,
@@ -16,7 +18,9 @@
       "phone": "623456789",
       "email": "laia.ferrer@padel.com",
       "groupId": 1,
-      "city": "Badia del Valles"
+      "city": "Badia del Valles",
+      "createdAt": "2026-05-18T12:00:00.000Z",
+      "favorite": false
     },
     {
       "id": 3,
@@ -25,7 +29,9 @@
       "phone": "634567890",
       "email": "jordi.roca@padel.com",
       "groupId": 2,
-      "city": "Rubi"
+      "city": "Rubi",
+      "createdAt": "2026-05-20T08:15:00.000Z",
+      "favorite": true
     },
     {
       "id": 4,
@@ -34,7 +40,9 @@
       "phone": "645678901",
       "email": "nuria.casas@padel.com",
       "groupId": 3,
-      "city": "Cerdanyola del Valles"
+      "city": "Cerdanyola del Valles",
+      "createdAt": "2026-05-21T09:45:00.000Z",
+      "favorite": false
     }
   ],
   "grupos": [

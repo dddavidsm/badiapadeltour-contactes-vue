@@ -8,8 +8,15 @@
         <option v-for="group in grupos" :key="group.id" :value="group.id">{{ group.name }}</option>
       </select>
 
+      <select v-model="orderBy" class="bpt-select">
+        <option value="name">Ordenar alfabeticamente</option>
+        <option value="date">Ordenar por mas recientes</option>
+      </select>
+
       <button class="bpt-btn" @click="openCreate">Nuevo contacto</button>
     </div>
+
+    <p v-if="message" class="bpt-empty">{{ message }}</p>
 
     <p v-if="errorMessage" class="bpt-empty">{{ errorMessage }}</p>
     <p v-else-if="loading" class="bpt-empty">Cargando contactos...</p>
@@ -22,6 +29,7 @@
         :contacto="contacto"
         :group-name="groupName(contacto.groupId)"
         :group-color="groupColor(contacto.groupId)"
+        :on-favorite="toggleFavorite"
         :on-edit="openEdit"
         :on-delete="removeContact"
       />
@@ -55,7 +63,8 @@
 import { computed, onMounted, reactive, ref } from 'vue';
 import ContactoItem from '../components/ContactoItem.vue';
 import type { Contacto, ContactoFormData, Grupo } from '../data/contact-types';
-import { ContactoService } from '../services/ContactoService';
+import { ContactService } from '../services/ContactService';
+import { GrupoService } from '../services/GrupoService';
 
 const contactos = ref<Contacto[]>([]);
 const grupos = ref<Grupo[]>([]);
@@ -64,9 +73,11 @@ const errorMessage = ref('');
 
 const showModal = ref(false);
 const editingId = ref<number | null>(null);
+const message = ref('');
 
 const searchQ = ref('');
 const filterGroup = ref(0);
+const orderBy = ref<'name' | 'date'>('name');
 
 const form = reactive<ContactoFormData>({
   name: '',
@@ -79,14 +90,25 @@ const form = reactive<ContactoFormData>({
 
 const filteredContacts = computed(() => {
   const query = searchQ.value.toLowerCase();
-  return contactos.value.filter((contacto) => {
-    const matchesText =
-      contacto.name.toLowerCase().includes(query) ||
-      contacto.surname.toLowerCase().includes(query) ||
-      contacto.phone.includes(query);
+  let result = contactos.value.filter((contacto) => {
+    const matchesName = contacto.name.toLowerCase().startsWith(query);
+    const hasSurname = !!contacto.surname;
+    const matchesSurname = hasSurname && contacto.surname.toLowerCase().startsWith(query);
     const matchesGroup = filterGroup.value === 0 || contacto.groupId === filterGroup.value;
-    return matchesText && matchesGroup;
+    return (matchesName || matchesSurname) && matchesGroup;
   });
+
+  if (orderBy.value === 'name') {
+    result = result.sort((a, b) => a.name.localeCompare(b.name));
+  } else {
+    result = result.sort((a, b) => {
+      const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+      const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+      return dateB - dateA;
+    });
+  }
+
+  return result;
 });
 
 function resetForm() {
@@ -103,9 +125,12 @@ async function loadData() {
   errorMessage.value = '';
 
   try {
-    const data = await ContactoService.getContactosViewData();
-    contactos.value = data.contactos;
-    grupos.value = data.grupos;
+    const [loadedContactos, loadedGrupos] = await Promise.all([
+      ContactService.getContacts(),
+      GrupoService.getGroups(),
+    ]);
+    contactos.value = loadedContactos;
+    grupos.value = loadedGrupos;
   } catch {
     errorMessage.value = 'No se pudieron cargar los datos.';
   } finally {
@@ -135,9 +160,18 @@ function closeModal() {
 }
 
 async function submitForm() {
-  if (!form.name || !form.surname || !form.phone || !form.email || !form.city || !form.groupId) {
-    return;
-  }
+  const regexPhone = /^\+[1-9]\d{1,14}$/;
+  const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const duplicatedPhone = contactos.value.find(
+    (contacto) => contacto.phone === form.phone && contacto.id !== editingId.value
+  );
+
+  if (!form.name?.trim()) return showAlert('El nombre es obligatorio.', true);
+  if (form.surname && form.surname.trim().length < 2) return showAlert('Si indicas apellidos, minimo 2 caracteres.', true);
+  if (!regexPhone.test(form.phone || '')) return showAlert('El telefono debe tener formato internacional E.164 (ejemplo: +34600000000).', true);
+  if (form.email && !regexEmail.test(form.email)) return showAlert('El formato del email no es valido.', true);
+  if (duplicatedPhone) return showAlert('Este telefono ya esta asignado a otro contacto.', true);
+  if (!form.groupId) return showAlert('Debes seleccionar un grupo para el contacto.', true);
 
   const payload = {
     name: form.name,
@@ -149,21 +183,56 @@ async function submitForm() {
   };
 
   try {
-    await ContactoService.saveContacto(payload, editingId.value ?? undefined);
+    if (editingId.value === null) {
+      await ContactService.createContact(payload);
+      showAlert('Contacto creado.');
+    } else {
+      await ContactService.updateContact(editingId.value, payload);
+      showAlert('Contacto actualizado.');
+    }
     await loadData();
     closeModal();
   } catch {
-    errorMessage.value = 'No se pudo guardar el contacto.';
+    showAlert('Error al guardar el contacto.', true);
   }
 }
 
 async function removeContact(id: number) {
   try {
-    await ContactoService.removeContacto(id);
+    await ContactService.deleteContact(id);
+    showAlert('Contacto eliminado.', true);
     await loadData();
   } catch {
-    errorMessage.value = 'No se pudo eliminar el contacto.';
+    showAlert('Error al eliminar el contacto.', true);
   }
+}
+
+async function toggleFavorite(contacto: Contacto) {
+  try {
+    await ContactService.updateContact(contacto.id, {
+      name: contacto.name,
+      surname: contacto.surname,
+      phone: contacto.phone,
+      email: contacto.email,
+      city: contacto.city,
+      groupId: contacto.groupId,
+      favorite: !contacto.favorite,
+    });
+    await loadData();
+  } catch {
+    showAlert('No se pudo actualizar favorito.', true);
+  }
+}
+
+function showAlert(text: string, isError = false) {
+  message.value = text;
+  if (isError) {
+    errorMessage.value = text;
+  }
+  setTimeout(() => {
+    message.value = '';
+    errorMessage.value = '';
+  }, 3000);
 }
 
 function groupName(groupId: number) {

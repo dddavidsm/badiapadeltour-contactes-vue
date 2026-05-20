@@ -30,7 +30,8 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
 import type { Contacto, Grupo } from '../data/contact-types';
-import { ContactoService } from '../services/ContactoService';
+import { ContactService } from '../services/ContactService';
+import { GrupoService } from '../services/GrupoService';
 
 const contacts = ref<Contacto[]>([]);
 const groups = ref<Grupo[]>([]);
@@ -62,8 +63,11 @@ function barWidth(groupId: number) {
 }
 
 onMounted(async () => {
-  const data = await ContactoService.getContactosViewData();
-  contacts.value = data.contactos;
-  groups.value = data.grupos;
+  const [loadedContactos, loadedGrupos] = await Promise.all([
+    ContactService.getContacts(),
+    GrupoService.getGroups(),
+  ]);
+  contacts.value = loadedContactos;
+  groups.value = loadedGrupos;
 });
 </script>

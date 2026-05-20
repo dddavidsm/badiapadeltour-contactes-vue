@@ -39,7 +39,7 @@ import { computed, onMounted, reactive, ref } from 'vue';
 import GrupoItem from '../components/GrupoItem.vue';
 import type { Contacto, Grupo, GrupoFormData } from '../data/contact-types';
 import { GrupoService } from '../services/GrupoService';
-import { ContactoService } from '../services/ContactoService';
+import { ContactService } from '../services/ContactService';
 
 const grupos = ref<Grupo[]>([]);
 const contactos = ref<Contacto[]>([]);
@@ -66,9 +66,12 @@ async function loadData() {
   errorMessage.value = '';
 
   try {
-    const data = await ContactoService.getContactosViewData();
-    grupos.value = data.grupos;
-    contactos.value = data.contactos;
+    const [loadedContactos, loadedGrupos] = await Promise.all([
+      ContactService.getContacts(),
+      GrupoService.getGroups(),
+    ]);
+    grupos.value = loadedGrupos;
+    contactos.value = loadedContactos;
   } catch {
     errorMessage.value = 'No se pudieron cargar los grupos.';
   } finally {
@@ -100,13 +103,16 @@ async function submitForm() {
   }
 
   try {
-    await GrupoService.saveGrupo(
-      {
-        name: form.name,
-        color: form.color,
-      },
-      editingId.value ?? undefined
-    );
+    const payload = {
+      name: form.name,
+      color: form.color,
+    };
+
+    if (editingId.value === null) {
+      await GrupoService.createGroup(payload);
+    } else {
+      await GrupoService.updateGroup(editingId.value, payload);
+    }
     await loadData();
     closeModal();
   } catch {
@@ -116,7 +122,7 @@ async function submitForm() {
 
 async function removeGroup(id: number) {
   try {
-    await GrupoService.removeGrupo(id);
+    await GrupoService.deleteGroup(id);
     await loadData();
   } catch {
     errorMessage.value = 'No se pudo eliminar el grupo.';

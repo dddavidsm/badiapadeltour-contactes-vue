@@ -1,51 +1,36 @@
 import type { Grupo } from '../data/contact-types';
-import {
-  createGrupoApi,
-  deleteGrupoApi,
-  getGrupoByIdApi,
-  getGruposApi,
-  updateGrupoApi,
-  type GrupoPayload,
-} from '../api/grupoApi';
+import request from './api';
 
-export type { GrupoPayload } from '../api/grupoApi';
+export type GroupPayload = Omit<Grupo, 'id'>;
 
 export const GrupoService = {
-  async getGrupos(): Promise<Grupo[]> {
-    try {
-      return await getGruposApi();
-    } catch (error) {
-      console.error(error);
-      throw error;
-    }
+  async getGroups(): Promise<Grupo[]> {
+    return request<Grupo[]>('/grupos');
   },
 
-  async getGrupoById(id: number): Promise<Grupo> {
-    try {
-      return await getGrupoByIdApi(id);
-    } catch (error) {
-      console.error(error);
-      throw error;
-    }
+  async getGroupById(id: number): Promise<Grupo> {
+    return request<Grupo>(`/grupos/${id}`);
   },
 
-  async saveGrupo(payload: GrupoPayload, id?: number): Promise<Grupo> {
-    try {
-      return id
-        ? await updateGrupoApi(id, payload)
-        : await createGrupoApi(payload);
-    } catch (error) {
-      console.error(error);
-      throw error;
-    }
+  async createGroup(payload: GroupPayload): Promise<Grupo> {
+    return request<Grupo>('/grupos', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
   },
 
-  async removeGrupo(id: number): Promise<void> {
-    try {
-      await deleteGrupoApi(id);
-    } catch (error) {
-      console.error(error);
-      throw error;
-    }
+  async updateGroup(id: number, payload: GroupPayload): Promise<Grupo> {
+    return request<Grupo>(`/grupos/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ...payload, id }),
+    });
+  },
+
+  async deleteGroup(id: number): Promise<void> {
+    return request<void>(`/grupos/${id}`, {
+      method: 'DELETE',
+    });
   },
 };
