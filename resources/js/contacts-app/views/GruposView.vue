@@ -4,13 +4,15 @@
       <button class="bpt-btn" @click="openCreate">Nuevo grupo</button>
     </div>
 
-    <div v-if="!groupsWithCount.length" class="bpt-empty">No hay grupos.</div>
+    <p v-if="errorMessage" class="bpt-empty">{{ errorMessage }}</p>
+    <p v-else-if="loading" class="bpt-empty">Cargando grupos...</p>
+    <p v-else-if="!groupsWithCount.length" class="bpt-empty">No hay grupos.</p>
 
     <div v-else class="bpt-groups-list">
       <GrupoItem
-        v-for="grupo in groupsWithCount"
-        :key="grupo.id"
-        :grupo="grupo"
+        v-for="group in groupsWithCount"
+        :key="group.id"
+        :grupo="group"
         :on-edit="openEdit"
         :on-delete="removeGroup"
       />
@@ -33,37 +35,58 @@
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, ref } from 'vue';
+import { computed, onMounted, reactive, ref } from 'vue';
 import GrupoItem from '../components/GrupoItem.vue';
-import { type Group, type GroupFormData } from '../data/contact-types';
-import { contactsPerGroup, groups, saveGroup, deleteGroup } from '../store';
+import type { Contacto, Grupo, GrupoFormData } from '../data/contact-types';
+import { GrupoService } from '../services/GrupoService';
+import { ContactoService } from '../services/ContactoService';
+
+const grupos = ref<Grupo[]>([]);
+const contactos = ref<Contacto[]>([]);
+const loading = ref(false);
+const errorMessage = ref('');
 
 const showModal = ref(false);
-const editingId = ref<number | undefined>();
+const editingId = ref<number | null>(null);
 
-const form = reactive<GroupFormData>({
+const form = reactive<GrupoFormData>({
   name: '',
   color: '#c9ff00',
 });
 
 const groupsWithCount = computed(() =>
-  groups.value.map((g) => ({
-    ...g,
-    total: contactsPerGroup.value[g.id] ?? 0,
+  grupos.value.map((grupo) => ({
+    ...grupo,
+    total: contactos.value.filter((contacto) => contacto.groupId === grupo.id).length,
   }))
 );
 
+async function loadData() {
+  loading.value = true;
+  errorMessage.value = '';
+
+  try {
+    const data = await ContactoService.getContactosViewData();
+    grupos.value = data.grupos;
+    contactos.value = data.contactos;
+  } catch {
+    errorMessage.value = 'No se pudieron cargar los grupos.';
+  } finally {
+    loading.value = false;
+  }
+}
+
 function openCreate() {
-  editingId.value = undefined;
+  editingId.value = null;
   form.name = '';
   form.color = '#c9ff00';
   showModal.value = true;
 }
 
-function openEdit(group: Group) {
-  editingId.value = group.id;
-  form.name = group.name;
-  form.color = group.color;
+function openEdit(grupo: Grupo) {
+  editingId.value = grupo.id;
+  form.name = grupo.name;
+  form.color = grupo.color;
   showModal.value = true;
 }
 
@@ -71,21 +94,36 @@ function closeModal() {
   showModal.value = false;
 }
 
-function submitForm() {
-  if (!form.name) return;
+async function submitForm() {
+  if (!form.name) {
+    return;
+  }
 
-  saveGroup(
-    {
-      name: form.name,
-      color: form.color,
-    },
-    editingId.value
-  );
-
-  showModal.value = false;
+  try {
+    await GrupoService.saveGrupo(
+      {
+        name: form.name,
+        color: form.color,
+      },
+      editingId.value ?? undefined
+    );
+    await loadData();
+    closeModal();
+  } catch {
+    errorMessage.value = 'No se pudo guardar el grupo.';
+  }
 }
 
-function removeGroup(id: number) {
-  deleteGroup(id);
+async function removeGroup(id: number) {
+  try {
+    await GrupoService.removeGrupo(id);
+    await loadData();
+  } catch {
+    errorMessage.value = 'No se pudo eliminar el grupo.';
+  }
 }
+
+onMounted(async () => {
+  await loadData();
+});
 </script>

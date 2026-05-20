@@ -1,0 +1,77 @@
+{
+  "contactos": [
+    {
+      "id": 1,
+      "name": "Marc",
+      "surname": "Puig",
+      "phone": "612345678",
+      "email": "marc.puig@padel.com",
+      "groupId": 1,
+      "city": "Sabadell"
+    },
+    {
+      "id": 2,
+      "name": "Laia",
+      "surname": "Ferrer",
+      "phone": "623456789",
+      "email": "laia.ferrer@padel.com",
+      "groupId": 1,
+      "city": "Badia del Valles"
+    },
+    {
+      "id": 3,
+      "name": "Jordi",
+      "surname": "Roca",
+      "phone": "634567890",
+      "email": "jordi.roca@padel.com",
+      "groupId": 2,
+      "city": "Rubi"
+    },
+    {
+      "id": 4,
+      "name": "Nuria",
+      "surname": "Casas",
+      "phone": "645678901",
+      "email": "nuria.casas@padel.com",
+      "groupId": 3,
+      "city": "Cerdanyola del Valles"
+    }
+  ],
+  "grupos": [
+    {
+      "id": 1,
+      "name": "Equipo Mixto",
+      "color": "#c9ff00"
+    },
+    {
+      "id": 2,
+      "name": "Rivales",
+      "color": "#ff6b6b"
+    },
+    {
+      "id": 3,
+      "name": "Entrenadores",
+      "color": "#4fc3f7"
+    }
+  ],
+  "historial": [
+    {
+      "id": 1,
+      "contactId": 1,
+      "contactName": "Marc Puig",
+      "date": "2026-05-19T18:30:00.000Z"
+    },
+    {
+      "id": 2,
+      "contactId": 2,
+      "contactName": "Laia Ferrer",
+      "date": "2026-05-19T19:15:00.000Z"
+    },
+    {
+      "id": 3,
+      "contactId": 3,
+      "contactName": "Jordi Roca",
+      "date": "2026-05-20T08:10:00.000Z"
+    }
+  ]
+}

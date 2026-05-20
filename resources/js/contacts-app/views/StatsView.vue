@@ -28,8 +28,31 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
-import { contacts, groups, contactsPerGroup, recentContactsCount } from '../store';
+import { computed, onMounted, ref } from 'vue';
+import type { Contacto, Grupo } from '../data/contact-types';
+import { ContactoService } from '../services/ContactoService';
+
+const contacts = ref<Contacto[]>([]);
+const groups = ref<Grupo[]>([]);
+
+const contactsPerGroup = computed(() => {
+  const map: Record<number, number> = {};
+  for (const group of groups.value) {
+    map[group.id] = 0;
+  }
+  for (const contact of contacts.value) {
+    map[contact.groupId] = (map[contact.groupId] ?? 0) + 1;
+  }
+  return map;
+});
+
+const recentContactsCount = computed(() => {
+  const lastWeek = Date.now() - 7 * 24 * 60 * 60 * 1000;
+  return contacts.value.filter((contact) => {
+    if (!contact.createdAt) return false;
+    return new Date(contact.createdAt).getTime() >= lastWeek;
+  }).length;
+});
 
 const maxCount = computed(() => Math.max(...Object.values(contactsPerGroup.value), 1));
 
@@ -37,4 +60,10 @@ function barWidth(groupId: number) {
   const count = contactsPerGroup.value[groupId] ?? 0;
   return `${Math.round((count / maxCount.value) * 100)}%`;
 }
+
+onMounted(async () => {
+  const data = await ContactoService.getContactosViewData();
+  contacts.value = data.contactos;
+  groups.value = data.grupos;
+});
 </script>

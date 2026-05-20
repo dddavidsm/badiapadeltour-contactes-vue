@@ -15,11 +15,11 @@
 </template>
 
 <script setup lang="ts">
-import type { Group } from '../data/contact-types';
+import type { Grupo } from '../data/contact-types';
 
 defineProps<{
-  grupo: Group & { total: number };
-  onEdit: (group: Group) => void;
+  grupo: Grupo & { total: number };
+  onEdit: (grupo: Grupo) => void;
   onDelete: (id: number) => void;
 }>();
 </script>
