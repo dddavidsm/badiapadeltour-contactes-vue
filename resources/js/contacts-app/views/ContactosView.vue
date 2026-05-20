@@ -35,27 +35,46 @@
       />
     </div>
 
-    <dialog v-if="showModal" class="bpt-modal" open>
-      <h3>{{ editingId ? 'Editar contacto' : 'Nuevo contacto' }}</h3>
-
-      <form class="bpt-form" @submit.prevent="submitForm">
-        <input v-model.trim="form.name" type="text" placeholder="Nombre" />
-        <input v-model.trim="form.surname" type="text" placeholder="Apellidos" />
-        <input v-model.trim="form.phone" type="tel" placeholder="Telefono" />
-        <input v-model.trim="form.email" type="email" placeholder="Email" />
-        <input v-model.trim="form.city" type="text" placeholder="Ciudad" />
-
-        <select v-model.number="form.groupId">
-          <option :value="0">Selecciona grupo</option>
-          <option v-for="group in grupos" :key="group.id" :value="group.id">{{ group.name }}</option>
-        </select>
-
-        <div class="bpt-form-actions">
-          <button type="button" class="bpt-btn ghost" @click="closeModal">Cancelar</button>
-          <button type="submit" class="bpt-btn">Guardar</button>
+    <transition name="fade">
+      <div v-if="showModal" class="bpt-modal-overlay">
+        <div class="bpt-modal-content">
+          <h3>{{ editingId ? 'Editar contacto' : 'Nuevo contacto' }}</h3>
+          <form class="bpt-form" @submit.prevent="submitForm">
+            <div class="bpt-form-group">
+              <input v-model.trim="form.name" type="text" placeholder="Nombre" :class="{'bpt-error': errors.name}" />
+              <span v-if="errors.name" class="bpt-error-msg">{{ errors.name }}</span>
+            </div>
+            <div class="bpt-form-group">
+              <input v-model.trim="form.surname" type="text" placeholder="Apellidos" :class="{'bpt-error': errors.surname}" />
+              <span v-if="errors.surname" class="bpt-error-msg">{{ errors.surname }}</span>
+            </div>
+            <div class="bpt-form-group">
+              <input v-model.trim="form.phone" type="tel" placeholder="Teléfono (+34600000000)" :class="{'bpt-error': errors.phone}" />
+              <span v-if="errors.phone" class="bpt-error-msg">{{ errors.phone }}</span>
+            </div>
+            <div class="bpt-form-group">
+              <input v-model.trim="form.email" type="email" placeholder="Email" :class="{'bpt-error': errors.email}" />
+              <span v-if="errors.email" class="bpt-error-msg">{{ errors.email }}</span>
+            </div>
+            <div class="bpt-form-group">
+              <input v-model.trim="form.city" type="text" placeholder="Ciudad" :class="{'bpt-error': errors.city}" />
+              <span v-if="errors.city" class="bpt-error-msg">{{ errors.city }}</span>
+            </div>
+            <div class="bpt-form-group">
+              <select v-model.number="form.groupId" :class="{'bpt-error': errors.groupId}">
+                <option :value="0">Selecciona grupo</option>
+                <option v-for="group in grupos" :key="group.id" :value="group.id">{{ group.name }}</option>
+              </select>
+              <span v-if="errors.groupId" class="bpt-error-msg">{{ errors.groupId }}</span>
+            </div>
+            <div class="bpt-form-actions">
+              <button type="button" class="bpt-btn ghost" @click="closeModal">Cancelar</button>
+              <button type="submit" class="bpt-btn">Guardar</button>
+            </div>
+          </form>
         </div>
-      </form>
-    </dialog>
+      </div>
+    </transition>
   </div>
 </template>
 
@@ -81,6 +100,14 @@ const orderBy = ref<'name' | 'date'>('name');
 
 const form = reactive<ContactoFormData>({
   name: '',
+const errors = reactive({
+  name: '',
+  surname: '',
+  phone: '',
+  email: '',
+  city: '',
+  groupId: '',
+});
   surname: '',
   phone: '',
   email: '',
@@ -112,13 +139,35 @@ const filteredContacts = computed(() => {
 });
 
 function resetForm() {
-  form.name = '';
-  form.surname = '';
-  form.phone = '';
-  form.email = '';
-  form.city = '';
-  form.groupId = grupos.value[0]?.id ?? null;
+  // Reset errores
+  Object.keys(errors).forEach(k => errors[k] = '');
+  let hasError = false;
 }
+  if (!form.name?.trim()) {
+    errors.name = 'El nombre es obligatorio.';
+    hasError = true;
+  }
+  if (form.surname && form.surname.trim().length < 2) {
+    errors.surname = 'Si indicas apellidos, mínimo 2 caracteres.';
+    hasError = true;
+  }
+  if (!regexPhone.test(form.phone || '')) {
+    errors.phone = 'El teléfono debe tener formato internacional E.164 (ejemplo: +34600000000).';
+    hasError = true;
+  }
+  if (form.email && !regexEmail.test(form.email)) {
+    errors.email = 'El formato del email no es válido.';
+    hasError = true;
+  }
+  if (duplicatedPhone) {
+    errors.phone = 'Este teléfono ya está asignado a otro contacto.';
+    hasError = true;
+  }
+  if (!form.groupId) {
+    errors.groupId = 'Debes seleccionar un grupo para el contacto.';
+    hasError = true;
+  }
+  if (hasError) return;
 
 async function loadData() {
   loading.value = true;
@@ -193,6 +242,88 @@ async function submitForm() {
     await loadData();
     closeModal();
   } catch {
+// Estilos para modal y errores inline
+</script>
+
+<style scoped>
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.2s;
+}
+.fade-enter-from, .fade-leave-to {
+  opacity: 0;
+}
+.bpt-modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(20, 20, 30, 0.7);
+  backdrop-filter: blur(2px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.bpt-modal-content {
+  background: #181c24;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+  padding: 2rem 2.5rem 1.5rem 2.5rem;
+  min-width: 340px;
+  max-width: 95vw;
+}
+.bpt-form-group {
+  margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+}
+.bpt-form-group input,
+.bpt-form-group select {
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  border: 1.5px solid #23283a;
+  background: #23283a;
+  color: #fff;
+  font-size: 1rem;
+  outline: none;
+  margin-bottom: 0.2rem;
+  transition: border 0.2s;
+}
+.bpt-form-group input.bpt-error,
+.bpt-form-group select.bpt-error {
+  border-color: #ff3b3b;
+}
+.bpt-error-msg {
+  color: #ff3b3b;
+  font-size: 0.92em;
+  margin-top: -0.2em;
+  margin-bottom: 0.2em;
+  min-height: 1.2em;
+}
+.bpt-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+.bpt-btn.ghost {
+  background: #23283a;
+  color: #fff;
+  border: 1.5px solid #23283a;
+}
+.bpt-btn {
+  padding: 0.5rem 1.2rem;
+  border-radius: 6px;
+  border: none;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  background: #c6ff00;
+  color: #181c24;
+  transition: background 0.2s;
+}
+.bpt-btn:active {
+  background: #b0e600;
+}
+</style>
     showAlert('Error al guardar el contacto.', true);
   }
 }

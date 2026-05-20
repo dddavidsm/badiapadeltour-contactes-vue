@@ -43,5 +43,14 @@ services:
     ports:
       - "8080:80"
 
+  json-server:
+    image: clue/json-server
+    container_name: bpt-json-server
+    volumes:
+      - ./db.json:/data/db.json
+    ports:
+      - "3001:80"
+    command: -H 0.0.0.0 /data/db.json
+
 volumes:
   bpt_db_data:
