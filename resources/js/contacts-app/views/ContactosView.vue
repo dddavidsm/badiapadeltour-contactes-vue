@@ -1,7 +1,7 @@
 <template>
   <div class="bpt-contacts-section">
     <div class="bpt-filters">
-      <input v-model.trim="searchQ" class="bpt-input" type="search" placeholder="Buscar contacto" />
+      <input v-model.trim="searchQ" class="bpt-input" type="search" placeholder="Buscar contacto (ej: Marta)" />
 
       <select v-model="filterGroup" class="bpt-select">
         <option :value="''">Todos los grupos</option>
@@ -33,13 +33,14 @@
       <h3>{{ editingId ? 'Editar contacto' : 'Nuevo contacto' }}</h3>
 
       <form class="bpt-form" @submit.prevent="submitForm">
-        <input v-model.trim="form.name" type="text" placeholder="Nombre" />
-        <input v-model.trim="form.surname" type="text" placeholder="Apellidos" />
-        <input v-model.trim="form.phone" type="tel" placeholder="Telefono" />
-        <input v-model.trim="form.email" type="email" placeholder="Email" />
+        <input v-model.trim="form.name" type="text" placeholder="Nombre (ej: Marta)" />
+        <input v-model.trim="form.surname" type="text" placeholder="Apellidos (ej: Garcia Lopez)" />
+        <input v-model.trim="form.phone" type="tel" placeholder="Telefono (ej: 612345678)" />
+        <small v-if="phoneError" class="error">{{ phoneError }}</small>
+        <input v-model.trim="form.email" type="email" placeholder="Email (ej: marta@email.com)" />
 
         <select v-model="form.city">
-          <option value="">Ciudad</option>
+          <option value="">Ciudad (ej: Sabadell)</option>
           <option v-for="city in PADEL_CITIES" :key="city" :value="city">{{ city }}</option>
         </select>
 
@@ -63,6 +64,16 @@ import ContactoItem from '../components/ContactoItem.vue';
 import { PADEL_CITIES, type Contact, type ContactFormData } from '../data/contact-types';
 import { contacts, groups, saveContact, deleteContact, toggleFavorite } from '../store';
 
+const SPANISH_PHONE_RE = /^[6789]\d{8}$/;
+
+function cleanPhone(value: string): string {
+  return value.replace(/\s+/g, '');
+}
+
+function isSpanishPhone(value: string): boolean {
+  return SPANISH_PHONE_RE.test(cleanPhone(value));
+}
+
 const searchQ = ref('');
 const filterGroup = ref<number | ''>('');
 const sortBy = ref<'name' | 'date'>('name');
@@ -70,8 +81,14 @@ const showModal = ref(false);
 const editingId = ref<number | undefined>();
 
 const isSaveDisabled = computed(
-  () => !form.name.trim() || !form.surname.trim() || !form.phone.trim() || form.groupId === null
+  () => !form.name.trim() || !form.surname.trim() || !form.phone.trim() || !isSpanishPhone(form.phone) || form.groupId === null
 );
+
+const phoneError = computed(() => {
+  if (!form.phone.trim()) return '';
+  if (isSpanishPhone(form.phone)) return '';
+  return 'Telefono no valido. Usa 9 digitos.';
+});
 
 const form = reactive<ContactFormData>({
   name: '',
@@ -136,7 +153,7 @@ function submitForm() {
     {
       name: form.name,
       surname: form.surname,
-      phone: form.phone,
+      phone: cleanPhone(form.phone),
       email: form.email,
       city: form.city,
       groupId: form.groupId as number,
