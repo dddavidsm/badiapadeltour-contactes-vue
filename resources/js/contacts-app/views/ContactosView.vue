@@ -245,7 +245,7 @@ async function submitForm() {
   clearErrors();
 
   const regexPhone = /^\+[1-9]\d{1,14}$/;
-  const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const regexEmail = /^[^\s@]+@([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$/;
   let hasError = false;
 
   const duplicatedPhone = contactos.value.find(
@@ -255,9 +255,15 @@ async function submitForm() {
   if (!form.name?.trim()) {
     errors.name = 'El nombre es obligatorio.';
     hasError = true;
+  } else if (form.name.trim().length < 2) {
+    errors.name = 'El nombre debe tener minimo 2 caracteres.';
+    hasError = true;
   }
-  if (form.surname && form.surname.trim().length < 2) {
-    errors.surname = 'Si indicas apellidos, minimo 2 caracteres.';
+  if (!form.surname?.trim()) {
+    errors.surname = 'Los apellidos son obligatorios.';
+    hasError = true;
+  } else if (form.surname.trim().length < 2) {
+    errors.surname = 'Los apellidos deben tener minimo 2 caracteres.';
     hasError = true;
   }
   if (!regexPhone.test(form.phone || '')) {
