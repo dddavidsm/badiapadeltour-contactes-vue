@@ -121,6 +121,10 @@ async function submitForm() {
 }
 
 async function removeGroup(id: number) {
+  const confirmed = window.confirm('¿Seguro que quieres borrar este grupo?');
+
+  if (!confirmed) return;
+
   try {
     await GrupoService.deleteGroup(id);
     await loadData();

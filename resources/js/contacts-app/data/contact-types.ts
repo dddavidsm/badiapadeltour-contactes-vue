@@ -16,12 +16,6 @@ export interface Contacto {
     favorite?: boolean;
 }
 
-export interface HistorialItem {
-    id: number;
-    contactId: number;
-    contactName: string;
-    date: string;
-}
 
 export interface ContactoFormData {
     name: string;

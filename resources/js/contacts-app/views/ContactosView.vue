@@ -310,6 +310,10 @@ async function submitForm() {
 }
 
 async function removeContact(id: number) {
+  const confirmed = window.confirm('¿Seguro que quieres borrar este contacto?');
+
+  if (!confirmed) return;
+
   try {
     await ContactService.deleteContact(id);
     showAlert('Contacto eliminado.', true);
